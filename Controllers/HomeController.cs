@@ -1,8 +1,8 @@
 using System.Diagnostics;
+using FitnessCenterManagement.Models;
 using Microsoft.AspNetCore.Mvc;
-using ProjeOdev.Models;
 
-namespace ProjeOdev.Controllers
+namespace FitnessCenterManagement.Controllers
 {
     public class HomeController : Controller
     {

@@ -1,0 +1,21 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model FitnessCenterManagement.Models.Service
+
+<h2>Hizmet Detayı</h2>
+
+<div class="card">
+    <div class="card-body">
+        <h4>@Model.Name</h4>
+        <p><strong>Açıklama:</strong> @Model.Description</p>
+        <p><strong>Süre:</strong> @Model.DurationMinutes dk</p>
+        <p><strong>Ücret:</strong> @Model.Price.ToString("F2") TL</p>
+        <p><strong>Salon:</strong> @Model.Salon?.Ad</p>
+    </div>
+</div>
+
+<a class="btn btn-secondary mt-3" asp-action="Index">Geri</a>

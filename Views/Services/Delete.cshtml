@@ -1,0 +1,30 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model FitnessCenterManagement.Models.Service
+
+<h2>Hizmeti Sil</h2>
+
+<div class="alert alert-danger">
+    <p>Bu hizmeti silmek istediğinize emin misiniz?</p>
+    <dl class="row">
+        <dt class="col-sm-2">Ad</dt>
+        <dd class="col-sm-10">@Model.Name</dd>
+
+        <dt class="col-sm-2">Süre</dt>
+        <dd class="col-sm-10">@Model.DurationMinutes dk</dd>
+
+        <dt class="col-sm-2">Ücret</dt>
+        <dd class="col-sm-10">@Model.Price.ToString("F2") TL</dd>
+    </dl>
+
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Evet, Sil</button>
+        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+    </form>
+</div>
+

@@ -1,4 +1,4 @@
-namespace ProjeOdev.Models
+namespace FitnessCenterManagement.Models
 {
     public class ErrorViewModel
     {

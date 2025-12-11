@@ -1,0 +1,51 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model IEnumerable<FitnessCenterManagement.Models.Service>
+
+@{
+    ViewData["Title"] = "Hizmetler";
+}
+
+<h2>Hizmetler</h2>
+
+@if (User.IsInRole("Admin"))
+{
+    <a class="btn btn-primary mb-3" asp-action="Create">Yeni Hizmet Ekle</a>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Ad</th>
+            <th>Açıklama</th>
+            <th>Süre (dk)</th>
+            <th>Ücret (TL)</th>
+            <th>Salon</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Description</td>
+                <td>@item.DurationMinutes</td>
+                <td>@item.Price.ToString("F2")</td>
+                <td>@item.Salon?.Ad</td>
+                <td>
+                    <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@item.Id">Detay</a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@item.Id">Düzenle</a>
+                        <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.Id">Sil</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
