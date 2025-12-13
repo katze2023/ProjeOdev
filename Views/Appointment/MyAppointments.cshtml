@@ -1,0 +1,42 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model IEnumerable<FitnessCenterManagement.Models.Appointment>
+
+<h2>Randevularım</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Hizmet</th>
+            <th>Antrenör</th>
+            <th>Tarih</th>
+            <th>Saat</th>
+            <th>Onay</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Service.Name</td>
+                <td>@item.Trainer.FullName</td>
+                <td>@item.Date.ToShortDateString()</td>
+                <td>@item.Time</td>
+                <td>
+                    @if (item.IsApproved)
+                    {
+                        <span class="badge bg-success">Onaylandı</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning">Bekliyor</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

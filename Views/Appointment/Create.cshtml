@@ -1,0 +1,42 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model FitnessCenterManagement.Models.Appointment
+
+<h2>Randevu Oluştur</h2>
+
+<form method="post">
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label>Hizmet</label>
+        <select asp-for="ServiceId" class="form-control" asp-items="ViewBag.Services"></select>
+    </div>
+
+    <div class="mb-3">
+        <label>Antrenör</label>
+        <select asp-for="TrainerId" class="form-control" asp-items="ViewBag.Trainers"></select>
+    </div>
+
+    <div class="mb-3">
+        <label>Tarih</label>
+        <input asp-for="Date" type="date" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Saat</label>
+        <input asp-for="Time" type="time" class="form-control" />
+    </div>
+
+    <button class="btn btn-success">Randevu Oluştur</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

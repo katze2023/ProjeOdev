@@ -1,0 +1,23 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model FitnessCenterManagement.Models.Trainer
+
+<h2>Antrenör Sil</h2>
+
+<p>
+    <strong>@Model.FullName</strong> adlı antrenörü silmek istediğinize emin misiniz?
+</p>
+
+<ul>
+    <li><strong>Uzmanlık:</strong> @Model.Expertise</li>
+    <li><strong>Müsaitlik:</strong> @Model.AvailableHours</li>
+    <li><strong>Salon:</strong> @Model.Salon?.Ad</li>
+</ul>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button class="btn btn-danger">Sil</button>
+    <a class="btn btn-secondary" asp-action="Index">İptal</a>
+</form>

@@ -1,0 +1,57 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model IEnumerable<FitnessCenterManagement.Models.Appointment>
+
+<h2>Randevu Yönetimi</h2>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Kullanıcı</th>
+            <th>Antrenör</th>
+            <th>Hizmet</th>
+            <th>Tarih</th>
+            <th>Saat</th>
+            <th>Durum</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var a in Model)
+        {
+            <tr>
+                <td>@a.User.Email</td>
+                <td>@a.Trainer.FullName</td>
+                <td>@a.Service.Name</td>
+                <td>@a.Date.ToShortDateString()</td>
+                <td>@a.Time</td>
+                <td>
+                    @if (a.IsApproved)
+                    {
+                        <span class="badge bg-success">Onaylandı</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark">Beklemede</span>
+                    }
+                </td>
+                <td>
+                    <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@a.Id">Detay</a>
+
+                    @if (!a.IsApproved)
+                    {
+                        <a class="btn btn-success btn-sm" asp-action="Approve" asp-route-id="@a.Id">
+                            Onayla
+                        </a>
+                    }
+
+                    <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@a.Id">
+                        Sil
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,21 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model FitnessCenterManagement.Models.Appointment
+
+<h2>Randevu Detayı</h2>
+
+<ul class="list-group">
+    <li class="list-group-item"><strong>Kullanıcı:</strong> @Model.User.Email</li>
+    <li class="list-group-item"><strong>Antrenör:</strong> @Model.Trainer.FullName</li>
+    <li class="list-group-item"><strong>Hizmet:</strong> @Model.Service.Name</li>
+    <li class="list-group-item"><strong>Tarih:</strong> @Model.Date.ToShortDateString()</li>
+    <li class="list-group-item"><strong>Saat:</strong> @Model.Time</li>
+    <li class="list-group-item">
+        <strong>Durum:</strong>
+        @(Model.IsApproved ? "Onaylandı" : "Beklemede")
+    </li>
+</ul>
+
+<a class="btn btn-secondary mt-3" asp-action="Index">Geri Dön</a>

@@ -1,0 +1,16 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Admin Paneli";
+}
+
+<h2>Admin Paneli</h2>
+
+<div class="list-group">
+    <a class="list-group-item list-group-item-action" asp-area="Admin" asp-controller="Service" asp-action="Index">Hizmet Yönetimi</a>
+    <a class="list-group-item list-group-item-action" asp-area="Admin" asp-controller="Trainer" asp-action="Index">Antrenör Yönetimi</a>
+    <a class="list-group-item list-group-item-action" asp-area="Admin" asp-controller="Salon" asp-action="Index">Salon Yönetimi</a>
+    <a class="list-group-item list-group-item-action" asp-area="Admin" asp-controller="Appointment" asp-action="Index">Randevu Yönetimi</a>
+    <a class="list-group-item list-group-item-action" asp-area="Admin" asp-controller="User" asp-action="Index">Kullanıcı Yönetimi</a>
+</div>
