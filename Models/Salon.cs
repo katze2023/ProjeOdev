@@ -8,5 +8,10 @@
         public string Adres { get; set; }
         public string CalismaSaatleri { get; set; }
 
+        // Salon resmi
+        public string? ImagePath { get; set; }
+
+        public ICollection<Trainer>? Trainers { get; set; }
+
     }
 }

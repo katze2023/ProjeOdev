@@ -6,28 +6,22 @@
 
 <h2>Yapay Zeka Egzersiz Önerileri</h2>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-warning">
-        Size uygun egzersiz bulunamadı.
-    </div>
-}
-else
-{
-    <div class="row">
-        @foreach (var ex in Model)
-        {
-            <div class="col-md-4 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5>@ex.ExerciseName</h5>
-                        <p>@ex.Description</p>
-                        <span class="badge bg-primary">
-                            Süre: @ex.DurationMinutes dk
-                        </span>
-                    </div>
+<div class="alert alert-info">
+    Öneriler, vücut tipiniz ve hedeflerinize göre oluşturulmuştur.
+</div>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-6 mb-3">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">@item.Title</h5>
+                    <p class="card-text">@item.Description</p>
+                    <span class="badge bg-primary">@item.Goal</span>
+                    <span class="badge bg-secondary">@item.BodyType</span>
                 </div>
             </div>
-        }
-    </div>
-}
+        </div>
+    }
+</div>

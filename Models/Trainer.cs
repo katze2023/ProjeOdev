@@ -26,5 +26,9 @@ namespace FitnessCenterManagement.Models
 
         [ForeignKey("SalonId")]
         public Salon Salon { get; set; }
+
+        // Antrenör resmi
+        public string? ImagePath { get; set; }
+
     }
 }

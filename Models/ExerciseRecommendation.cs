@@ -7,16 +7,16 @@ namespace FitnessCenterManagement.Models
         public int Id { get; set; }
 
         [Required]
-        public string BodyType { get; set; } // Slim, Athletic, Overweight
+        public string BodyType { get; set; }
 
         [Required]
-        public string Goal { get; set; } // Kilo Verme, Kas Geliştirme, Fit Kalma
+        public string Goal { get; set; }
 
         [Required]
-        public string ExerciseName { get; set; }
+        [StringLength(100)]
+        public string Title { get; set; }
 
+        [StringLength(500)]
         public string Description { get; set; }
-
-        public int DurationMinutes { get; set; }
     }
 }

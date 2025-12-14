@@ -1,28 +1,21 @@
 ﻿using FitnessCenterManagement.Data;
 using FitnessCenterManagement.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace FitnessCenterManagement.Services
 {
     public class AIExerciseService
     {
-        private readonly ApplicationDbContext _context;
-
         public AIExerciseService(ApplicationDbContext context)
         {
-            _context = context;
         }
 
-        public async Task<List<ExerciseRecommendation>> GetRecommendations(ApplicationUser user)
+        public Task<List<ExerciseRecommendation>> GetRecommendations(ApplicationUser user)
         {
             string bodyType = user.BodyType ?? "Athletic";
             string goal = DetermineGoal(user);
 
-            var recommendations = await _context.ExerciseRecommendations
-                .Where(x => x.BodyType == bodyType && x.Goal == goal)
-                .ToListAsync();
-
-            return recommendations;
+            // Şu an sadece fallback AI kullanıyoruz
+            return Task.FromResult(GetFallbackRecommendations(bodyType, goal));
         }
 
         private string DetermineGoal(ApplicationUser user)
@@ -39,6 +32,27 @@ namespace FitnessCenterManagement.Services
                 return "Kas Geliştirme";
             else
                 return "Fit Kalma";
+        }
+
+        private List<ExerciseRecommendation> GetFallbackRecommendations(string bodyType, string goal)
+        {
+            return new List<ExerciseRecommendation>
+            {
+                new ExerciseRecommendation
+                {
+                    Title = "Full Body Antrenman",
+                    Description = "Tüm kas gruplarını çalıştıran dengeli bir egzersiz programı.",
+                    BodyType = bodyType,
+                    Goal = goal
+                },
+                new ExerciseRecommendation
+                {
+                    Title = "Kardiyo + Core",
+                    Description = "Yağ yakımı ve core bölgesi güçlendirme egzersizleri.",
+                    BodyType = bodyType,
+                    Goal = goal
+                }
+            };
         }
     }
 }
