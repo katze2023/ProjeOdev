@@ -2,26 +2,37 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 
-@model IEnumerable<FitnessCenterManagement.Models.ExerciseRecommendation>
+@model FitnessCenterManagement.Models.ViewModels.AIUserInputViewModel
 
-<h2>Yapay Zeka Egzersiz Önerileri</h2>
+<h2 class="mb-4">Yapay Zekâ Egzersiz Önerisi</h2>
 
-<div class="alert alert-info">
-    Öneriler, vücut tipiniz ve hedeflerinize göre oluşturulmuştur.
-</div>
+<form asp-action="Index" method="post" class="card p-4 shadow-sm">
+    @Html.AntiForgeryToken()
 
-<div class="row">
-    @foreach (var item in Model)
-    {
-        <div class="col-md-6 mb-3">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h5 class="card-title">@item.Title</h5>
-                    <p class="card-text">@item.Description</p>
-                    <span class="badge bg-primary">@item.Goal</span>
-                    <span class="badge bg-secondary">@item.BodyType</span>
-                </div>
-            </div>
-        </div>
-    }
-</div>
+    <div class="mb-3">
+        <label asp-for="HeightCm" class="form-label"></label>
+        <input asp-for="HeightCm" class="form-control" />
+        <span asp-validation-for="HeightCm" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="WeightKg" class="form-label"></label>
+        <input asp-for="WeightKg" class="form-control" />
+        <span asp-validation-for="WeightKg" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="BodyType" class="form-label"></label>
+        <select asp-for="BodyType" class="form-select">
+            <option value="">-- Vücut Tipi Seçiniz --</option>
+            <option value="Ectomorph">Ectomorph (Zayıf)</option>
+            <option value="Mesomorph">Mesomorph (Atletik)</option>
+            <option value="Endomorph">Endomorph (Kilo Almaya Yatkın)</option>
+        </select>
+        <span asp-validation-for="BodyType" class="text-danger"></span>
+    </div>
+
+    <button class="btn btn-primary w-100">
+        Yapay Zekâdan Öneri Al
+    </button>
+</form>

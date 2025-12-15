@@ -1,6 +1,47 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Gizlilik Politikası";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container-xl py-5">
+
+    <h1 class="display-5 fw-bold text-dark border-bottom pb-2 mb-4">
+        Gizlilik Politikası
+    </h1>
+
+    <p class="lead text-muted">
+        Bu sayfa, sitemizin gizlilik politikasını detaylandırmak için kullanılır. Projenin geliştirme aşamasında olduğundan, bu metin demo amaçlıdır.
+    </p>
+
+    <div class="row mt-5 g-4">
+
+        <div class="col-md-6">
+            <div class="p-4 border border-1 border-start-0 border-top-0 border-end-0 border-5 border-primary bg-white shadow-sm h-100">
+                <h3 class="h5 fw-bold text-primary mb-3">1. Topladığımız Bilgiler</h3>
+                <p class="text-secondary">
+                    Sistem, üyelik ve randevu işlemleri için temel kişisel bilgileri (ad, soyad, e-posta, telefon) saklar.
+                    Yapay zeka önerileri için isteğe bağlı olarak vücut tipi, boy ve kilo bilgileri de toplanabilir.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="p-4 border border-1 border-start-0 border-top-0 border-end-0 border-5 border-success bg-white shadow-sm h-100">
+                <h3 class="h5 fw-bold text-success mb-3">2. Bilgilerin Kullanımı</h3>
+                <p class="text-secondary">
+                    Toplanan bilgiler, randevu uygunluğunu kontrol etmek ve kişiselleştirilmiş spor deneyimleri sunmak için kullanılır.
+                    Bilgileriniz üçüncü taraflarla paylaşılmaz.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-12 mt-4">
+            <div class="p-4 border border-1 border-start-0 border-top-0 border-end-0 border-5 border-danger bg-white shadow-sm">
+                <h3 class="h5 fw-bold text-danger mb-3">3. Güvenlik ve Depolama</h3>
+                <p class="text-secondary">
+                    Verileriniz, ASP.NET Core ve Entity Framework Core teknolojileri kullanılarak SQL Server/PostgreSQL gibi güvenli veritabanlarında depolanmaktadır.
+                    Yetkilendirme mekanizması (rol bazlı) ile sadece ilgili kullanıcıların verilere erişimi sağlanır.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

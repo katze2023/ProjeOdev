@@ -16,8 +16,19 @@
     <li><strong>Salon:</strong> @Model.Salon?.Ad</li>
 </ul>
 
-<form asp-action="DeleteConfirmed" method="post">
+<form asp-area="Admin"
+      asp-controller="Trainer"
+      asp-action="Delete"
+      method="post">
+
     <input type="hidden" asp-for="Id" />
-    <button class="btn btn-danger">Sil</button>
-    <a class="btn btn-secondary" asp-action="Index">İptal</a>
+
+    <button type="submit" class="btn btn-danger">Sil</button>
+
+    <a class="btn btn-secondary"
+       asp-area="Admin"
+       asp-controller="Trainer"
+       asp-action="Index">
+        İptal
+    </a>
 </form>

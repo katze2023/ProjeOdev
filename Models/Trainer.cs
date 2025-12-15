@@ -28,7 +28,7 @@ namespace FitnessCenterManagement.Models
         public Salon Salon { get; set; }
 
         // Antrenör resmi
-        public string? ImagePath { get; set; }
+        //public string? ImagePath { get; set; }
 
     }
 }

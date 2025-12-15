@@ -15,7 +15,7 @@ namespace FitnessCenterManagement.Models
         [StringLength(50)]
         public string? BodyType { get; set; }
 
-        [Display(Name = "Profil Fotoğrafı")]
-        public string? ProfileImagePath { get; set; }
+        //[Display(Name = "Profil Fotoğrafı")]
+        //public string? ProfileImagePath { get; set; }
     }
 }

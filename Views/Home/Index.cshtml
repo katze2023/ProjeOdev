@@ -1,8 +1,139 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Ana Sayfa";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="main-content">
+
+    <!-- HERO SECTION -->
+    <header class="hero-section text-white text-center"
+            style="background: linear-gradient(rgba(30,41,59,0.85), rgba(30,41,59,0.85)),
+                   url('/images/hero-bg.jpg') center/cover;
+                   height: 50vh;">
+
+        <div class="container-xl">
+            <h1 class="display-4 fw-bold mb-3">
+                Sınırlarını Aş, Geleceğine Yatırım Yap
+            </h1>
+
+            <p class="lead mb-4 text-light">
+                Doğru salonu seç, uzman antrenörlerle çalış, hedeflerine emin adımlarla ilerle.
+            </p>
+
+            <a asp-controller="Appointment"
+               asp-action="Create"
+               class="btn btn-outline-light btn-lg me-3">
+                Randevu Al
+            </a>
+
+            <a asp-area="Identity"
+               asp-page="/Account/Login"
+               class="btn btn-light btn-lg text-dark">
+                Giriş / Kayıt
+            </a>
+        </div>
+    </header>
+
+    <!-- FEATURES -->
+    <section class="features-section py-5 bg-light">
+        <div class="container-xl">
+            <h2 class="text-center mb-5 fw-bold">
+                Size Özel Çözümler
+            </h2>
+
+            <div class="row g-4">
+
+                <!-- Antrenör -->
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0 text-center p-4">
+                        <div class="card-body">
+                            <i class="bi bi-people fs-1 text-primary mb-3"></i>
+
+                            <h5 class="fw-semibold">
+                                Uzman Antrenörler
+                            </h5>
+
+                            <p class="text-muted small">
+                                Uzmanlık alanlarına göre antrenörleri inceleyin ve randevu alın.
+                            </p>
+
+                            <a asp-controller="Trainer"
+                               asp-action="Index"
+                               class="btn btn-sm btn-outline-primary mt-2">
+                                Antrenörleri Gör
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI -->
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0 text-center p-4">
+                        <div class="card-body">
+                            <i class="bi bi-robot fs-1 text-primary mb-3"></i>
+
+                            <h5 class="fw-semibold">
+                                Yapay Zeka Egzersiz Önerileri
+                            </h5>
+
+                            <p class="text-muted small">
+                                Vücut bilgilerinize göre size özel egzersiz planları oluşturulur.
+                            </p>
+
+                            <a asp-controller="AIExercise"
+                               asp-action="Index"
+                               class="btn btn-sm btn-outline-primary mt-2">
+                                Önerileri Gör
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hizmetler -->
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0 text-center p-4">
+                        <div class="card-body">
+                            <i class="bi bi-list-check fs-1 text-primary mb-3"></i>
+
+                            <h5 class="fw-semibold">
+                                Hizmetler
+                            </h5>
+
+                            <p class="text-muted small">
+                                Salonların sunduğu tüm hizmetleri, süre ve ücret bilgileriyle inceleyin.
+                            </p>
+
+                            <a asp-controller="Services"
+                               asp-action="Index"
+                               class="btn btn-sm btn-outline-primary mt-2">
+                                Hizmetleri Gör
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- TECH STACK -->
+    <section class="py-5" style="background-color:#1f2933;">
+        <div class="container-xl text-center text-white">
+            <h4 class="mb-3">
+                Kullanılan Teknolojiler
+            </h4>
+
+            <p class="text-muted mx-auto" style="max-width: 700px;">
+                Bu proje ASP.NET Core MVC mimarisi kullanılarak geliştirilmiş, Entity Framework Core
+                ile veri yönetimi sağlanmıştır.
+            </p>
+
+            <div class="d-flex justify-content-center gap-4 mt-4 fs-3">
+                <i class="bi bi-c-square-fill"></i>
+                <i class="bi bi-filetype-sql"></i>
+                <i class="bi bi-gear-fill"></i>
+                <i class="bi bi-bootstrap-fill"></i>
+            </div>
+        </div>
+    </section>
+
 </div>

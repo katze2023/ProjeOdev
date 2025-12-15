@@ -1,0 +1,29 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model IEnumerable<FitnessCenterManagement.Models.Salon>
+
+<h2 class="mb-4">Spor Salonlarımız</h2>
+
+<div class="row">
+    @foreach (var salon in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">@salon.Ad</h5>
+                    <p class="text-muted">@salon.Adres</p>
+                    <p><strong>Saatler:</strong> @salon.CalismaSaatleri</p>
+
+                    <a asp-action="Details"
+                       asp-route-id="@salon.Id"
+                       class="btn btn-outline-primary btn-sm">
+                        Antrenörleri Gör
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+

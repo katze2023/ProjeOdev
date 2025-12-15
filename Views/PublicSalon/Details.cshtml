@@ -1,0 +1,38 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model FitnessCenterManagement.Models.Salon
+
+<h2>@Model.Ad</h2>
+<p><strong>Adres:</strong> @Model.Adres</p>
+<p><strong>Çalışma Saatleri:</strong> @Model.CalismaSaatleri</p>
+
+<hr />
+
+<h4>Bu Salondaki Antrenörler</h4>
+
+@if (!Model.Trainers.Any())
+{
+    <p>Bu salona ait antrenör bulunmamaktadır.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var trainer in Model.Trainers)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h6>@trainer.FullName</h6>
+                        <p class="small text-muted">@trainer.Expertise</p>
+                        <p class="small">
+                            <strong>Müsaitlik:</strong> @trainer.AvailableHours
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
