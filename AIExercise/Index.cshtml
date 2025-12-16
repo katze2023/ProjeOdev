@@ -1,0 +1,256 @@
+﻿@model FitnessCenterManagement.Models.ViewModels.AIUserInputViewModel
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yapay Zeka Fitness Planlayıcısı</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+        }
+
+        .card-plan {
+            transition: all 0.3s ease;
+            border-left: 6px solid;
+        }
+
+            .card-plan:nth-child(3n+1) {
+                border-left-color: #4f46e5;
+            }
+
+            .card-plan:nth-child(3n+2) {
+                border-left-color: #10b981;
+            }
+
+            .card-plan:nth-child(3n) {
+                border-left-color: #f59e0b;
+            }
+
+        .input-field {
+            border-color: #d1d5db;
+            transition: border-color 0.2s;
+        }
+
+            .input-field:focus {
+                border-color: #4f46e5;
+                --tw-ring-color: #4f46e5;
+                box-shadow: 0 0 0 2px var(--tw-ring-color);
+                outline: none;
+            }
+
+        #loading-indicator {
+            border-top-color: #fff;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl p-6 md:p-10">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-6 border-b-4 border-indigo-600 pb-3">🤖 Yapay Zeka Kişisel Antrenörünüz</h1>
+        <p class="text-gray-600 mb-8 leading-relaxed">
+            Boy, kilo ve vücut tipi verilerinizi girin. İsteğe bağlı olarak eklediğiniz vücut fotoğrafı, Gemini'ın analiziyle birleşerek size özel,
+            yapılandırılmış ve **3 günlük** kişiselleştirilmiş bir egzersiz planı oluşturur.
+        </p>
+
+        <form id="aiForm" enctype="multipart/form-data">
+            <div id="input-section" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <!-- Giriş Alanı -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="HeightCm" class="block text-sm font-semibold text-gray-700 mb-1">Boy (cm)</label>
+                            <input id="HeightCm" name="HeightCm" type="number" value="180" min="100" max="250" required class="input-field block w-full rounded-lg shadow-sm p-3 border" placeholder="Örn: 180">
+                            <span class="text-red-600 text-xs validation-error" data-for="HeightCm"></span>
+                        </div>
+                        <div>
+                            <label for="WeightKg" class="block text-sm font-semibold text-gray-700 mb-1">Kilo (kg)</label>
+                            <input id="WeightKg" name="WeightKg" type="number" value="75" min="30" max="300" required class="input-field block w-full rounded-lg shadow-sm p-3 border" placeholder="Örn: 75">
+                            <span class="text-red-600 text-xs validation-error" data-for="WeightKg"></span>
+                        </div>
+                        <div>
+                            <label for="BodyType" class="block text-sm font-semibold text-gray-700 mb-1">Vücut Tipi</label>
+                            <select id="BodyType" name="BodyType" required class="input-field block w-full rounded-lg shadow-sm p-3 border appearance-none">
+                                <option value="Mesomorph">Mesomorph (Atletik)</option>
+                                <option value="Ectomorph">Ectomorph (Zayıf)</option>
+                                <option value="Endomorph">Endomorph (Kilo Almaya Yatkın)</option>
+                            </select>
+                            <span class="text-red-600 text-xs validation-error" data-for="BodyType"></span>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 p-4 card-input bg-indigo-50/50 rounded-lg">
+                        <label for="ImageFile" class="block text-sm font-bold text-indigo-700 mb-2">📸 Vücut Fotoğrafı Yükle (İsteğe Bağlı)</label>
+                        <input id="ImageFile" name="ImageFile" type="file" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-200 file:text-indigo-800 hover:file:bg-indigo-300 transition">
+                        <p class="mt-2 text-xs text-indigo-700/80">Analiz kalitesini artırmak için ön/yan profil fotoğrafı önerilir. (Gizliliğiniz önceliğimizdir.)</p>
+                        <span class="text-red-600 text-xs validation-error" data-for="ImageFile"></span>
+                    </div>
+                </div>
+
+                <!-- Önizleme Alanı -->
+                <div class="lg:col-span-1 flex flex-col items-center justify-center border-2 border-dashed border-indigo-300 p-6 rounded-xl bg-white/70 shadow-inner">
+                    <img id="imagePreview" src="https://placehold.co/150x200/e0f2f7/06b6d4?text=Foto%C4%9Fraf%0A%C3%96nizleme" alt="Image Preview" class="max-h-52 w-auto object-contain rounded-lg shadow-xl border border-gray-200">
+                    <p id="imageStatus" class="mt-3 text-sm font-medium text-gray-600">Henüz fotoğraf yüklenmedi.</p>
+                </div>
+            </div>
+
+            <button type="submit" id="generateBtn" class="mt-8 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold py-4 px-4 rounded-xl shadow-lg transition duration-150 ease-in-out disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center text-lg transform hover:scale-[1.01]">
+                <svg id="loading-indicator" class="animate-spin -ml-1 mr-3 h-6 w-6 text-white hidden" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span id="button-text">Yapay Zekâdan Kişiselleştirilmiş Plan Al</span>
+            </button>
+        </form>
+
+        <!-- Sonuç Bölümü -->
+        <div id="result-container" class="mt-12 pt-6 border-t-2 border-gray-200 hidden">
+            <h2 class="text-2xl font-bold text-indigo-700 mb-6 flex items-center">
+                <span class="mr-2">🏋️‍♂️</span> Kişisel Egzersiz Planınız
+            </h2>
+
+            <div id="recommendations-list" class="space-y-6">
+                <!-- Öneriler buraya gelecek -->
+            </div>
+
+            <div id="error-message" class="text-red-600 mt-6 hidden p-4 bg-red-100 border border-red-300 rounded-lg font-semibold"></div>
+        </div>
+
+        <!-- JavaScript -->
+        <script>
+            console.log('Script yüklendi');
+
+            const form = document.getElementById('aiForm');
+            const generateBtn = document.getElementById('generateBtn');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const buttonText = document.getElementById('button-text');
+            const resultContainer = document.getElementById('result-container');
+            const recommendationsList = document.getElementById('recommendations-list');
+            const imageUpload = document.getElementById('ImageFile');
+            const imagePreview = document.getElementById('imagePreview');
+            const imageStatus = document.getElementById('imageStatus');
+            const errorMessage = document.getElementById('error-message');
+
+            // Görüntü önizleme
+            if (imageUpload) {
+                imageUpload.addEventListener('change', (event) => {
+                    console.log('Dosya değişti');
+                    const file = event.target.files[0];
+                    if (file) {
+                        imagePreview.src = URL.createObjectURL(file);
+                        imageStatus.textContent = 'Yüklendi: ' + file.name;
+                        console.log('Dosya yüklendi:', file.name);
+                    } else {
+                        imagePreview.src = 'https://placehold.co/150x200/e0f2f7/06b6d4?text=Foto%C4%9Fraf%0A%C3%96nizleme';
+                        imageStatus.textContent = 'Henüz fotoğraf yüklenmedi.';
+                    }
+                });
+            }
+
+            // Form gönderimi
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    console.log('Form gönderiliyor...');
+
+                    // Validation hatalarını temizle
+                    document.querySelectorAll('.validation-error').forEach(el => el.textContent = '');
+
+                    // Yüklenme durumu
+                    generateBtn.disabled = true;
+                    loadingIndicator.classList.remove('hidden');
+                    buttonText.textContent = 'Analiz Ediliyor... (30 saniyeye kadar sürebilir)';
+                    resultContainer.classList.add('hidden');
+                    errorMessage.classList.add('hidden');
+
+                    const formData = new FormData(form);
+
+                    // FormData içeriğini kontrol et
+                    console.log('Form verileri:');
+                    for (let [key, value] of formData.entries()) {
+                        console.log(key, value);
+                    }
+
+                    try {
+                        console.log('API çağrısı başlatılıyor...');
+                        const response = await fetch('/AI/GetRecommendations', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        console.log('Response alındı:', response.status);
+                        const data = await response.json();
+                        console.log('Data:', data);
+
+                        if (!response.ok || !data.success) {
+                            throw new Error(data.error || 'Bir hata oluştu');
+                        }
+
+                        renderRecommendations(data.recommendations);
+
+                    } catch (error) {
+                        console.error('Hata:', error);
+                        errorMessage.textContent = 'Hata: ' + error.message;
+                        errorMessage.classList.remove('hidden');
+                        resultContainer.classList.remove('hidden');
+                    } finally {
+                        generateBtn.disabled = false;
+                        loadingIndicator.classList.add('hidden');
+                        buttonText.textContent = 'Yapay Zekâdan Kişiselleştirilmiş Plan Al';
+                    }
+                });
+            } else {
+                console.error('Form bulunamadı!');
+            }
+
+            function renderRecommendations(recommendations) {
+                console.log('Rendering recommendations:', recommendations);
+                recommendationsList.innerHTML = '';
+                errorMessage.classList.add('hidden');
+
+                if (!recommendations || recommendations.length === 0) {
+                    errorMessage.textContent = 'Yapay zeka plan oluşturamadı. Lütfen bilgileri kontrol edin.';
+                    errorMessage.classList.remove('hidden');
+                    resultContainer.classList.remove('hidden');
+                    return;
+                }
+
+                recommendations.forEach((rec, index) => {
+                    const day = index + 1;
+                    const borderColor = day % 3 === 1 ? 'border-indigo-600' : day % 3 === 2 ? 'border-emerald-600' : 'border-amber-600';
+                    const bgColor = day % 3 === 1 ? 'bg-indigo-50' : day % 3 === 2 ? 'bg-emerald-50' : 'bg-amber-50';
+
+                    const card = document.createElement('div');
+                    card.className = `card-plan p-6 rounded-xl shadow-lg ${bgColor} border-4 ${borderColor}`;
+                    card.innerHTML = `
+                        <h3 class="text-xl font-bold text-gray-800 mb-2 border-b pb-2">Gün ${day}: ${rec.title}</h3>
+                        <div class="flex flex-wrap gap-3 mb-3 text-sm">
+                            <span class="px-3 py-1 bg-indigo-200 text-indigo-800 font-medium rounded-full">🏋️ ${rec.focusArea}</span>
+                            <span class="px-3 py-1 bg-green-200 text-green-800 font-medium rounded-full">⏱️ ${rec.durationMinutes} dk</span>
+                            <span class="px-3 py-1 bg-gray-600 text-white font-medium rounded-full">🧍 ${rec.bodyType}</span>
+                            <span class="px-3 py-1 bg-yellow-200 text-yellow-800 font-medium rounded-full">🏆 ${rec.goal}</span>
+                        </div>
+                        <p class="text-gray-700 whitespace-pre-wrap leading-relaxed">${rec.description}</p>
+                    `;
+                    recommendationsList.appendChild(card);
+                });
+
+                resultContainer.classList.remove('hidden');
+                console.log('Recommendations rendered');
+            }
+
+            // Sayfa yüklendiğinde
+            document.addEventListener('DOMContentLoaded', () => {
+                console.log('DOM yüklendi');
+                console.log('Form element:', form);
+                console.log('Button element:', generateBtn);
+            });
+        </script>
+    </div>
+</body>
+</html>
