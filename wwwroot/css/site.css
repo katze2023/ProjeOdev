@@ -1,31 +1,92 @@
+/* ---------- GENEL AYARLAR ---------- */
+
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background-color: #f8f9fa; /* Hafif açýk gri */
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* ---------- FOCUS & ERÝÞÝLEBÝLÝRLÝK ---------- */
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.25);
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* ---------- HERO SECTION ---------- */
+
+.hero-section {
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    transition: all 0.4s ease;
+}
+
+/* ---------- ANA ÝÇERÝK ---------- */
+
+.main-content {
+    padding-bottom: 50px;
+}
+
+/* ---------- FEATURES (KARTLAR) ---------- */
+
+.features-section .card {
+    border-radius: 12px;
+}
+
+    .features-section .card i {
+        font-size: 3rem;
+    }
+
+    .features-section .card:hover {
+        transform: translateY(-5px);
+        transition: 0.3s ease;
+    }
+
+/* ---------- RENK ÖZELLEÞTÝRME ---------- */
+
+/* Primary rengi daha sade yapýyoruz */
+.btn-primary {
+    background-color: #1e293b; /* Koyu lacivert */
+    border-color: #1e293b;
+}
+
+    .btn-primary:hover {
+        background-color: #334155;
+        border-color: #334155;
+    }
+
+.text-primary {
+    color: #1e293b !important;
+}
+
+/* Outline butonlar */
+.btn-outline-primary {
+    color: #1e293b;
+    border-color: #1e293b;
+}
+
+    .btn-outline-primary:hover {
+        background-color: #1e293b;
+        color: #ffffff;
+    }
+
+/* ---------- FOOTER ---------- */
+
+footer {
+    background-color: #ffffff;
 }

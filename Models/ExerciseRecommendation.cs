@@ -7,12 +7,12 @@ namespace FitnessCenterManagement.Models
         public int Id { get; set; }
 
         [Required]
+        // Hangi vücut tipine yönelik olduğu
         public string BodyType { get; set; }
 
         [Required]
-        public string Goal { get; set; } // Kilo Verme, Kas Geliştirme, Fit Kalma
-
-
+        // Hangi hedefe yönelik olduğu (Kilo Verme, Kas Geliştirme, vb.)
+        public string Goal { get; set; }
 
         [Required]
         [StringLength(100)]
@@ -20,5 +20,9 @@ namespace FitnessCenterManagement.Models
 
         [StringLength(500)]
         public string Description { get; set; } // Egzersiz açıklaması
+
+        // Önceki versiyondan kalan faydalı alanları koruyorum
+        public int DurationMinutes { get; set; }
+        public string FocusArea { get; set; }
     }
 }
