@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text;
 using Microsoft.Extensions.Configuration;
+using System.Linq;
+using System.Threading;
 
 namespace FitnessCenterManagement.Services
 {
@@ -13,104 +15,298 @@ namespace FitnessCenterManagement.Services
     {
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
-        private const string TextModelUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent";
-        private const string ImageModelUrl = "https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict";
+        private readonly string _baseUrl;
+        private readonly string _textModel;
+        private readonly string _unsplashAccessKey;
+
+        // Rate Limiting
+        private static readonly SemaphoreSlim _rateLimiter = new SemaphoreSlim(1, 1);
+        private static DateTime _lastRequestTime = DateTime.MinValue;
+        private const int MinMillisecondsBetweenRequests = 4000;
 
         public GeminiAIService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _apiKey = configuration["Gemini:ApiKey"] ?? "";
+            _apiKey = configuration["GeminiAPI:ApiKey"] ?? "";
+            _unsplashAccessKey = configuration["Unsplash:AccessKey"] ?? "";
+            _baseUrl = "https://generativelanguage.googleapis.com/v1beta/models";
+            _textModel = "gemini-2.0-flash-exp";
         }
 
         public async Task<GeminiResult> GetExerciseRecommendations(int heightCm, int weightKg, string bodyType, string? imageBase64)
         {
-            if (string.IsNullOrEmpty(_apiKey)) return await GetMockData(heightCm, weightKg, bodyType);
+            if (string.IsNullOrEmpty(_apiKey))
+                return await GetMockDataWithBundles("API anahtarı bulunamadı.");
+
+            // Rate Limiting
+            await _rateLimiter.WaitAsync();
+            try
+            {
+                var timeSinceLastRequest = (DateTime.Now - _lastRequestTime).TotalMilliseconds;
+                if (timeSinceLastRequest < MinMillisecondsBetweenRequests)
+                {
+                    var delayMs = (int)(MinMillisecondsBetweenRequests - timeSinceLastRequest);
+                    await Task.Delay(delayMs);
+                }
+                _lastRequestTime = DateTime.Now;
+            }
+            finally
+            {
+                _rateLimiter.Release();
+            }
 
             try
             {
-                var bmi = (double)weightKg / Math.Pow((double)heightCm / 100, 2);
-                var goal = bmi < 20 ? "Kilo Alma ve Kas Kütlesi" : "Yağ Yakımı ve Sıkılaşma";
+                var bmi = weightKg / Math.Pow(heightCm / 100.0, 2);
 
-                // AI'dan ne istediğimizi açıkça belirttiğimiz prompt
-                var prompt = $@"
-                    Kullanıcı Bilgileri: Boy {heightCm}cm, Kilo {weightKg}kg, Vücut Tipi {bodyType}. Hedef: {goal}.
-                    Görev: 
-                    1. Bu kullanıcıya özel 3 günlük profesyonel bir egzersiz programı hazırla.
-                    2. Bu kullanıcıya özel günlük alması gereken kalori/makro değerlerini ve örnek bir diyet menüsü hazırla.
-                    3. Bu kullanıcı eğer önerdiğin planı 3 ay boyunca uygularsa fiziksel görünümünde ne gibi değişimler olacağını detaylıca açıkla.
-                    
-                    Tüm yanıtı TÜRKÇE ve aşağıdaki JSON formatında ver:
-                    {{
-                        ""recommendations"": [{{ ""Title"": """", ""Description"": """", ""DurationMinutes"": 0, ""FocusArea"": """" }}],
-                        ""dietPlan"": ""Kalori değerleri ve öğün listesi buraya..."",
-                        ""transformationPrediction"": ""3 ay sonraki fiziksel değişim açıklaması buraya...""
-                    }}";
+                var prompt = $@"Kullanıcı: {heightCm}cm, {weightKg}kg, {bodyType}, BMI:{bmi:F1}
+
+3 FARKLI senaryo oluştur:
+1. ""Kilo Verme & Yağ Yakımı"" (GoalType: ""Loss"")
+2. ""Atletik Kas İnşası"" (GoalType: ""Gain"")  
+3. ""Hacim Kazanma (Bulk)"" (GoalType: ""Bulk"")
+
+Her senaryo için TÜRKÇE:
+- GoalTitle: Çekici başlık
+- GoalType: Loss/Gain/Bulk
+- DietPlan: Detaylı günlük beslenme planı (kahvaltı, öğle, akşam, ara öğün)
+- Exercises: 3 günlük egzersiz programı
+
+Exercises formatı:
+- Title: ""1. Gün: Program Adı""
+- Description: Detaylı egzersiz açıklaması (setler, tekrarlar)
+- DurationMinutes: Süre
+- FocusArea: Odak alanı
+
+SADECE JSON formatında yanıt ver:
+{{
+  ""bundles"": [
+    {{
+      ""GoalTitle"": ""Senaryo Başlığı"",
+      ""GoalType"": ""Loss"",
+      ""DietPlan"": ""Detaylı diyet planı..."",
+      ""Exercises"": [
+        {{
+          ""Title"": ""1. Gün: Tam Vücut"",
+          ""Description"": ""Egzersiz detayları..."",
+          ""DurationMinutes"": 60,
+          ""FocusArea"": ""Kas Geliştirme""
+        }}
+      ]
+    }}
+  ]
+}}";
+
+                var partsList = new List<object> { new { text = prompt } };
+
+                // Görsel varsa ekle (max 500KB)
+                if (!string.IsNullOrEmpty(imageBase64))
+                {
+                    var imageBytes = Convert.FromBase64String(imageBase64);
+                    if (imageBytes.Length <= 500_000)
+                    {
+                        partsList.Add(new
+                        {
+                            inline_data = new
+                            {
+                                mime_type = "image/jpeg",
+                                data = imageBase64
+                            }
+                        });
+                    }
+                }
 
                 var payload = new
                 {
-                    contents = new[] { new { parts = new[] { new { text = prompt } } } },
-                    generationConfig = new { responseMimeType = "application/json" }
+                    contents = new[] { new { parts = partsList.ToArray() } },
+                    generationConfig = new
+                    {
+                        temperature = 0.7,
+                        topK = 40,
+                        topP = 0.95,
+                        maxOutputTokens = 4096,
+                        responseMimeType = "application/json"
+                    }
                 };
 
-                var response = await _httpClient.PostAsync($"{TextModelUrl}?key={_apiKey}",
-                    new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json"));
+                var requestUrl = $"{_baseUrl}/{_textModel}:generateContent?key={_apiKey}";
+                var jsonPayload = JsonSerializer.Serialize(payload);
 
-                if (!response.IsSuccessStatusCode) throw new Exception("AI Servisi yanıt vermedi.");
+                Console.WriteLine($"📤 Gemini API'ye istek gönderiliyor...");
 
-                var jsonResponse = await response.Content.ReadAsStringAsync();
-                using var doc = JsonDocument.Parse(jsonResponse);
-                var content = doc.RootElement.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString();
+                var response = await _httpClient.PostAsync(requestUrl,
+                    new StringContent(jsonPayload, Encoding.UTF8, "application/json"));
 
-                var resultData = JsonSerializer.Deserialize<JsonElement>(content!);
+                var responseContent = await response.Content.ReadAsStringAsync();
 
-                var recs = JsonSerializer.Deserialize<List<ExerciseRecommendation>>(resultData.GetProperty("recommendations").ToString());
-                var diet = resultData.GetProperty("dietPlan").GetString();
-                var prediction = resultData.GetProperty("transformationPrediction").GetString();
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"❌ API Hatası: {response.StatusCode}");
 
-                return GeminiResult.Success(recs!, diet!, prediction!);
+                    if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                    {
+                        return await GetMockDataWithBundles(
+                            "⚠️ API kota limiti aşıldı!\n\n" +
+                            "Çözümler:\n" +
+                            "1. Yeni API anahtarı: https://aistudio.google.com/app/apikey\n" +
+                            "2. 1 saat bekleyin ve tekrar deneyin\n" +
+                            "3. Google Cloud ücretli planına geçin"
+                        );
+                    }
+
+                    return await GetMockDataWithBundles($"API Hatası: {response.StatusCode}");
+                }
+
+                using var doc = JsonDocument.Parse(responseContent);
+
+                if (!doc.RootElement.TryGetProperty("candidates", out var candidates) ||
+                    candidates.GetArrayLength() == 0)
+                {
+                    return await GetMockDataWithBundles("API geçersiz yanıt döndü.");
+                }
+
+                var contentText = candidates[0]
+                    .GetProperty("content")
+                    .GetProperty("parts")[0]
+                    .GetProperty("text")
+                    .GetString();
+
+                if (string.IsNullOrEmpty(contentText))
+                {
+                    return await GetMockDataWithBundles("API boş yanıt döndü.");
+                }
+
+                Console.WriteLine($"✅ AI yanıtı alındı");
+
+                var aiResponse = JsonSerializer.Deserialize<JsonElement>(contentText);
+                var bundleArray = aiResponse.GetProperty("bundles").EnumerateArray();
+
+                var bundles = new List<PlanBundle>();
+                var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+                foreach (var b in bundleArray)
+                {
+                    var goalType = b.TryGetProperty("GoalType", out var gt) ? gt.GetString() ?? "General" : "General";
+
+                    var bundle = new PlanBundle
+                    {
+                        GoalTitle = b.GetProperty("GoalTitle").GetString() ?? "Hedef",
+                        GoalType = goalType,
+                        DietPlan = b.GetProperty("DietPlan").GetString() ?? "Diyet planı belirtilmedi.",
+                        Exercises = JsonSerializer.Deserialize<List<ExerciseRecommendation>>(
+                            b.GetProperty("Exercises").ToString(), jsonOptions) ?? new List<ExerciseRecommendation>()
+                    };
+
+                    // Unsplash'ten hedef tipine göre görsel al
+                    bundle.GeneratedImageUrl = await GetUnsplashImage(goalType, bodyType);
+                    bundles.Add(bundle);
+                }
+
+                Console.WriteLine($"✅ {bundles.Count} senaryo oluşturuldu!");
+                return GeminiResult.Success(bundles);
             }
             catch (Exception ex)
             {
-                return GeminiResult.Failure($"Hata: {ex.Message}");
+                Console.WriteLine($"❌ Exception: {ex.Message}");
+                return await GetMockDataWithBundles($"Sistem Hatası: {ex.Message}");
             }
         }
 
-        public async Task<GeminiResult> GenerateTransformationVisualization(string base64Image, string targetDescription)
+        private async Task<string> GetUnsplashImage(string goalType, string bodyType)
         {
-            if (string.IsNullOrEmpty(_apiKey))
-                return GeminiResult.SuccessImage("https://placehold.co/600x400?text=AI+Donusum+Resmi+Burada+Gozukecek");
-
             try
             {
-                var payload = new
+                // Hedef tipine göre arama terimleri
+                var searchQuery = goalType.ToLower() switch
                 {
-                    instances = new { prompt = $"A realistic fitness transformation photo of a person based on this image, looking {targetDescription}. High quality, gym setting." },
-                    parameters = new { sampleCount = 1 }
+                    "loss" => "weight loss fitness cardio running gym",
+                    "gain" => "bodybuilding muscle athlete strength training",
+                    "bulk" => "powerlifting muscular bodybuilder heavy weights",
+                    _ => "fitness workout gym motivation"
                 };
 
-                var response = await _httpClient.PostAsync($"{ImageModelUrl}?key={_apiKey}",
-                    new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json"));
+                if (string.IsNullOrEmpty(_unsplashAccessKey))
+                {
+                    Console.WriteLine("⚠️ Unsplash API anahtarı yok, placeholder kullanılıyor");
+                    return GetPlaceholderImage(goalType);
+                }
+
+                var requestUrl = $"https://api.unsplash.com/photos/random?query={Uri.EscapeDataString(searchQuery)}&orientation=landscape&content_filter=high";
+
+                var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+                request.Headers.Add("Authorization", $"Client-ID {_unsplashAccessKey}");
+                request.Headers.Add("Accept-Version", "v1");
+
+                Console.WriteLine($"📸 Unsplash'ten görsel alınıyor: {searchQuery}");
+
+                var response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var resJson = await response.Content.ReadAsStringAsync();
-                    using var doc = JsonDocument.Parse(resJson);
-                    var b64 = doc.RootElement.GetProperty("predictions")[0].GetProperty("bytesBase64Encoded").GetString();
-                    return GeminiResult.SuccessImage($"data:image/png;base64,{b64}");
+                    var json = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(json);
+
+                    var imageUrl = doc.RootElement
+                        .GetProperty("urls")
+                        .GetProperty("regular")
+                        .GetString();
+
+                    Console.WriteLine($"✅ Unsplash görsel alındı: {goalType}");
+                    return imageUrl ?? GetPlaceholderImage(goalType);
                 }
-                return GeminiResult.Failure("Görsel oluşturulamadı.");
+                else
+                {
+                    Console.WriteLine($"⚠️ Unsplash hatası: {response.StatusCode}");
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                return GeminiResult.Failure("Görselleştirme servisinde hata.");
+                Console.WriteLine($"⚠️ Unsplash exception: {ex.Message}");
             }
+
+            return GetPlaceholderImage(goalType);
         }
 
-        private async Task<GeminiResult> GetMockData(int h, int w, string bt)
+        private string GetPlaceholderImage(string goalType)
         {
-            await Task.Delay(500);
-            var recs = new List<ExerciseRecommendation> { new ExerciseRecommendation { Title = "Hafif Koşu", Description = "30 dk tempo.", DurationMinutes = 30, FocusArea = "Kardiyo", BodyType = bt, Goal = "Genel" } };
-            return GeminiResult.Success(recs, "Günlük 2500 kalori beslenin.", "3 ay sonra daha dinç görüneceksiniz.", null);
+            return goalType.ToLower() switch
+            {
+                "loss" => "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&q=80", // Cardio/Running
+                "gain" => "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800&q=80", // Bodybuilding
+                "bulk" => "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80", // Powerlifting
+                _ => "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&q=80" // Generic gym
+            };
         }
+
+        private async Task<GeminiResult> GetMockDataWithBundles(string diagnosticInfo)
+        {
+            await Task.Delay(100);
+
+            var bundles = new List<PlanBundle>
+            {
+                new PlanBundle
+                {
+                    GoalTitle = "🔴 Servis Geçici Olarak Kullanılamıyor",
+                    GoalType = "Error",
+                    DietPlan = diagnosticInfo,
+                    GeneratedImageUrl = "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&q=80",
+                    Exercises = new List<ExerciseRecommendation>
+                    {
+                        new ExerciseRecommendation
+                        {
+                            Title = "⚠️ API Bağlantı Sorunu",
+                            Description = "Lütfen API anahtarınızı kontrol edin veya birkaç dakika sonra tekrar deneyin.",
+                            DurationMinutes = 0,
+                            FocusArea = "Sistem Mesajı"
+                        }
+                    }
+                }
+            };
+
+            return GeminiResult.Success(bundles);
+        }
+
+        public Task<GeminiResult> GenerateTransformationVisualization(string b, string t) =>
+            throw new NotImplementedException();
     }
 }

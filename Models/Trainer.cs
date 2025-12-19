@@ -27,8 +27,13 @@ namespace FitnessCenterManagement.Models
         [ForeignKey("SalonId")]
         public Salon Salon { get; set; }
 
-        // Antrenör resmi
-        //public string? ImagePath { get; set; }
+
+        // Antrenör resmi için
+        [Display(Name = "Antrenör Fotoğrafı")]
+        public string? ImagePath { get; set; }
+
+        [NotMapped]
+        public IFormFile? ImageFile { get; set; }
 
     }
 }
