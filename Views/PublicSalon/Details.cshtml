@@ -1,38 +1,216 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model FitnessCenterManagement.Models.Salon
 
-@model FitnessCenterManagement.Models.Salon
-
-<h2>@Model.Ad</h2>
-<p><strong>Adres:</strong> @Model.Adres</p>
-<p><strong>Çalışma Saatleri:</strong> @Model.CalismaSaatleri</p>
-
-<hr />
-
-<h4>Bu Salondaki Antrenörler</h4>
-
-@if (!Model.Trainers.Any())
-{
-    <p>Bu salona ait antrenör bulunmamaktadır.</p>
+@{
+    ViewData["Title"] = Model.Ad;
 }
-else
-{
-    <div class="row">
-        @foreach (var trainer in Model.Trainers)
-        {
-            <div class="col-md-4 mb-3">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h6>@trainer.FullName</h6>
-                        <p class="small text-muted">@trainer.Expertise</p>
-                        <p class="small">
-                            <strong>Müsaitlik:</strong> @trainer.AvailableHours
-                        </p>
+
+@section Styles {
+    <style>
+        :root {
+            --macfit-yellow: #FFD200;
+            --macfit-dark: #121212;
+            --macfit-card-bg: #1e1e1e;
+        }
+
+        body {
+            background-color: var(--macfit-dark);
+            color: #fff;
+        }
+
+        /* Üst Bilgi Alanı */
+        .club-header {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80');
+            background-size: cover;
+            background-position: center;
+            padding: 80px 0;
+            margin-bottom: 40px;
+            border-bottom: 4px solid var(--macfit-yellow);
+        }
+
+        .club-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .club-meta {
+            font-size: 1.1rem;
+            color: #ddd;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+            .club-meta div {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .club-meta i {
+                color: var(--macfit-yellow);
+                font-size: 1.2rem;
+            }
+
+        /* Antrenör Kartları */
+        .trainer-card {
+            background-color: var(--macfit-card-bg);
+            border: 1px solid #333;
+            transition: all 0.3s;
+            height: 100%;
+        }
+
+            .trainer-card:hover {
+                border-color: var(--macfit-yellow);
+                transform: translateY(-5px);
+            }
+
+        .trainer-avatar {
+            width: 100px;
+            height: 100px;
+            background-color: #333;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: var(--macfit-yellow);
+            border: 2px solid var(--macfit-yellow);
+        }
+
+        .trainer-name {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.25rem;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .trainer-badge {
+            background-color: rgba(255, 210, 0, 0.1);
+            color: var(--macfit-yellow);
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .section-header {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2rem;
+            border-left: 5px solid var(--macfit-yellow);
+            padding-left: 15px;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+
+        .btn-back {
+            color: #aaa;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 20px;
+            transition: color 0.3s;
+        }
+
+            .btn-back:hover {
+                color: #fff;
+            }
+    </style>
+}
+
+<!-- ÜST BANNER ALANI -->
+<div class="club-header">
+    <div class="container">
+        <a asp-action="Index" class="btn-back">
+            <i class="bi bi-arrow-left"></i> KULÜPLERE DÖN
+        </a>
+
+        <h1 class="club-title animate__animated animate__fadeInLeft">@Model.Ad</h1>
+
+        <div class="club-meta animate__animated animate__fadeInUp">
+            <div>
+                <i class="bi bi-geo-alt-fill"></i>
+                <span>@Model.Adres</span>
+            </div>
+            <div>
+                <i class="bi bi-clock-fill"></i>
+                <span>@Model.CalismaSaatleri</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+
+    <!-- ANTRENÖRLER BÖLÜMÜ -->
+    <h2 class="section-header">EĞİTMEN KADROSU</h2>
+
+    @if (!Model.Trainers.Any())
+    {
+        <div class="alert alert-dark border-secondary text-center py-5">
+            <i class="bi bi-info-circle fs-2 text-warning mb-3 d-block"></i>
+            <p class="mb-0 text-muted">Bu kulübe henüz antrenör atanmamış.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var trainer in Model.Trainers)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="card trainer-card text-center p-4">
+                        <!-- Profil Fotoğrafı (Placeholder) -->
+                        <div class="trainer-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+
+                        <h5 class="trainer-name">@trainer.FullName</h5>
+
+                        <div>
+                            <span class="trainer-badge">@trainer.Expertise</span>
+                        </div>
+
+                        <div class="text-muted small mt-3 pt-3 border-top border-secondary">
+                            <div class="d-flex justify-content-center align-items-center gap-2">
+                                <i class="bi bi-calendar-check text-warning"></i>
+                                <span>Müsaitlik:</span>
+                            </div>
+                            <div class="text-white mt-1">@trainer.AvailableHours</div>
+                        </div>
+
+                        <!-- Giriş yapmışsa randevu butonu -->
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a asp-controller="Appointment" asp-action="Create" class="btn btn-outline-light btn-sm w-100 mt-3 rounded-0">
+                                RANDEVU AL
+                            </a>
+                        }
                     </div>
                 </div>
-            </div>
-        }
-    </div>
-}
+            }
+        </div>
+    }
 
+    <!-- Harita veya Ek Bilgi Alanı (Opsiyonel Placeholder) -->
+    <div class="mt-5 p-4 bg-dark border border-secondary">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h4 class="text-white font-monospace text-uppercase mb-2">Hemen Başlamaya Hazır mısın?</h4>
+                <p class="text-muted mb-0">Antrenörlerimizle tanışmak ve kulübümüzü gezmek için seni bekliyoruz.</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a asp-controller="Appointment" asp-action="Create" class="btn btn-warning fw-bold px-4 py-2 rounded-0">
+                    ÜCRETSİZ DENEME RANDEVUSU
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>

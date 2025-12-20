@@ -1,16 +1,321 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
     ViewData["Title"] = "Admin Paneli";
 }
 
-<h2>Admin Paneli</h2>
+@section Styles {
+    <style>
+        :root {
+            --macfit-yellow: #FFD200;
+            --macfit-dark: #121212;
+            --macfit-card-bg: #1e1e1e;
+            --macfit-text-gray: #b0b0b0;
+        }
 
-<div class="list-group">
-    <a class="list-group-item list-group-item-action" asp-area="Admin" asp-controller="Service" asp-action="Index">Hizmet Yönetimi</a>
-    <a class="list-group-item list-group-item-action" asp-area="Admin" asp-controller="Trainer" asp-action="Index">Antrenör Yönetimi</a>
-    <a class="list-group-item list-group-item-action" asp-area="Admin" asp-controller="Salon" asp-action="Index">Salon Yönetimi</a>
-    <a class="list-group-item list-group-item-action" asp-area="Admin" asp-controller="Appointment" asp-action="Index">Randevu Yönetimi</a>
-    <a class="list-group-item list-group-item-action" asp-area="Admin" asp-controller="User" asp-action="Index">Kullanıcı Yönetimi</a>
+        body {
+            background-color: var(--macfit-dark);
+            color: #fff;
+        }
+
+        /* Başlık Alanı */
+        .dashboard-header {
+            border-bottom: 2px solid #333;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+        }
+
+        .page-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #fff;
+            margin: 0;
+        }
+
+        .welcome-text {
+            color: var(--macfit-text-gray);
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        /* Dashboard Kartları */
+        .admin-card {
+            background-color: var(--macfit-card-bg);
+            border: 1px solid #333;
+            border-radius: 0; /* Keskin hatlar */
+            transition: all 0.3s ease;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+            .admin-card:hover {
+                border-color: var(--macfit-yellow);
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            }
+
+            /* Kartın üstündeki ince sarı çizgi efekti */
+            .admin-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 0;
+                height: 4px;
+                background-color: var(--macfit-yellow);
+                transition: width 0.3s ease;
+            }
+
+            .admin-card:hover::before {
+                width: 100%;
+            }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--macfit-yellow);
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .card-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .card-desc {
+            color: var(--macfit-text-gray);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .btn-go {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s;
+            margin-top: auto; /* En alta it */
+        }
+
+            .btn-go:hover {
+                color: var(--macfit-yellow);
+            }
+
+            .btn-go i {
+                margin-left: 5px;
+                transition: margin-left 0.3s;
+            }
+
+            .btn-go:hover i {
+                margin-left: 10px;
+            }
+
+        /* Hızlı İstatistikler (Opsiyonel Görsel) */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-box {
+            background-color: #252525;
+            padding: 20px;
+            border-left: 4px solid #444;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+            .stat-box.active {
+                border-left-color: var(--macfit-yellow);
+            }
+
+            .stat-box.blue {
+                border-left-color: #0dcaf0;
+            }
+
+            .stat-box.green {
+                border-left-color: #198754;
+            }
+
+        .stat-number {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: #aaa;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+    </style>
+}
+
+<div class="container py-5">
+
+    <!-- Başlık -->
+    <div class="dashboard-header d-flex justify-content-between align-items-end">
+        <div>
+            <h2 class="page-title"><i class="bi bi-speedometer2 me-2 text-warning"></i> YÖNETİM PANELİ</h2>
+            <p class="welcome-text mb-0">Sistem verilerini ve içeriklerini buradan yönetebilirsiniz.</p>
+        </div>
+        <div class="text-end d-none d-md-block">
+            <span class="text-muted small">Bugün:</span>
+            <div class="fw-bold text-white">@DateTime.Now.ToString("dd MMMM yyyy, dddd")</div>
+        </div>
+    </div>
+
+    <!-- Hızlı İstatistikler (Görsel Placeholder) -->
+    <!-- Bu kısım backend'den veri gelirse dinamikleşebilir, şu an görsel zenginlik için var -->
+    <div class="stats-container animate__animated animate__fadeIn">
+        <div class="stat-box active">
+            <i class="bi bi-calendar-check fs-2 text-warning"></i>
+            <div>
+                <div class="stat-number">--</div>
+                <div class="stat-label">Aktif Randevular</div>
+            </div>
+        </div>
+        <div class="stat-box blue">
+            <i class="bi bi-people fs-2 text-info"></i>
+            <div>
+                <div class="stat-number">--</div>
+                <div class="stat-label">Toplam Üye</div>
+            </div>
+        </div>
+        <div class="stat-box green">
+            <i class="bi bi-person-badge fs-2 text-success"></i>
+            <div>
+                <div class="stat-number">--</div>
+                <div class="stat-label">Eğitmenler</div>
+            </div>
+        </div>
+        <div class="stat-box">
+            <i class="bi bi-building fs-2 text-light"></i>
+            <div>
+                <div class="stat-number">--</div>
+                <div class="stat-label">Şubeler</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menü Kartları Grid -->
+    <div class="row g-4">
+
+        <!-- 1. Randevu Yönetimi (En Önemli) -->
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+            <div class="admin-card">
+                <div class="card-body">
+                    <i class="bi bi-calendar-check-fill card-icon"></i>
+                    <h5 class="card-title">Randevu Yönetimi</h5>
+                    <p class="card-desc">
+                        Üyelerin oluşturduğu randevu taleplerini görüntüleyin, onaylayın veya iptal edin.
+                    </p>
+                    <a asp-area="Admin" asp-controller="Appointment" asp-action="Index" class="btn-go">
+                        Talepleri İncele <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Antrenör Yönetimi -->
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+            <div class="admin-card">
+                <div class="card-body">
+                    <i class="bi bi-person-badge-fill card-icon"></i>
+                    <h5 class="card-title">Antrenör Yönetimi</h5>
+                    <p class="card-desc">
+                        Yeni eğitmen ekleyin, uzmanlık alanlarını güncelleyin veya kadrodan çıkarın.
+                    </p>
+                    <a asp-area="Admin" asp-controller="Trainer" asp-action="Index" class="btn-go">
+                        Kadroyu Yönet <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Hizmet Yönetimi -->
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+            <div class="admin-card">
+                <div class="card-body">
+                    <i class="bi bi-lightning-charge-fill card-icon"></i>
+                    <h5 class="card-title">Hizmet Yönetimi</h5>
+                    <p class="card-desc">
+                        Salonlarda sunulan hizmetleri, süreleri ve ücretlendirmeleri düzenleyin.
+                    </p>
+                    <a asp-area="Admin" asp-controller="Service" asp-action="Index" class="btn-go">
+                        Hizmetleri Düzenle <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Salon Yönetimi -->
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+            <div class="admin-card">
+                <div class="card-body">
+                    <i class="bi bi-building-fill card-icon"></i>
+                    <h5 class="card-title">Salon Yönetimi</h5>
+                    <p class="card-desc">
+                        Şube bilgilerini, adresleri ve çalışma saatlerini güncel tutun.
+                    </p>
+                    <a asp-area="Admin" asp-controller="Salon" asp-action="Index" class="btn-go">
+                        Salonları Listele <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Kullanıcı Yönetimi -->
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.5s;">
+            <div class="admin-card">
+                <div class="card-body">
+                    <i class="bi bi-people-fill card-icon"></i>
+                    <h5 class="card-title">Kullanıcı Yönetimi</h5>
+                    <p class="card-desc">
+                        Sisteme kayıtlı üyeleri görüntüleyin ve hesap durumlarını kontrol edin.
+                    </p>
+                    <a asp-area="Admin" asp-controller="User" asp-action="Index" class="btn-go">
+                        Üyeleri Gör <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Yapay Zeka (Opsiyonel/İlerisi İçin) -->
+        <div class="col-md-6 col-lg-4 animate__animated animate__fadeInUp" style="animation-delay: 0.6s;">
+            <div class="admin-card" style="border-color: #444;">
+                <div class="card-body">
+                    <i class="bi bi-cpu-fill card-icon text-muted"></i>
+                    <h5 class="card-title text-muted">Sistem Ayarları</h5>
+                    <p class="card-desc">
+                        Genel sistem yapılandırmaları ve log kayıtları (Yakında).
+                    </p>
+                    <span class="btn-go text-muted" style="cursor: not-allowed;">
+                        Hazırlanıyor...
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>

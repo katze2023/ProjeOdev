@@ -1,21 +1,68 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model FitnessCenterManagement.Models.Trainer
+
 @{
+    ViewData["Title"] = "Antrenör Detayı";
 }
 
-@model FitnessCenterManagement.Models.Service
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-md-5">
+                        <img src="@(string.IsNullOrEmpty(Model.ImagePath) ? "/images/trainers/default-trainer.jpg" : Model.ImagePath)"
+                             class="img-fluid h-100 w-100"
+                             style="object-fit: cover; min-height: 400px;"
+                             alt="@Model.FullName"
+                             onerror="this.src='/images/trainers/default-trainer.jpg';" />
+                    </div>
+                    <div class="col-md-7">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h2 class="fw-bold mb-0">@Model.FullName</h2>
+                                    <span class="badge bg-primary mt-1">@Model.Expertise</span>
+                                </div>
+                                <a class="btn btn-outline-warning btn-sm" asp-action="Edit" asp-route-id="@Model.Id">
+                                    <i class="bi bi-pencil-square"></i> Düzenle
+                                </a>
+                            </div>
 
-<h2>Hizmet Detayı</h2>
+                            <hr />
 
-<div class="card">
-    <div class="card-body">
-        <h4>@Model.Name</h4>
-        <p><strong>Açıklama:</strong> @Model.Description</p>
-        <p><strong>Süre:</strong> @Model.DurationMinutes dk</p>
-        <p><strong>Ücret:</strong> @Model.Price.ToString("F2") TL</p>
-        <p><strong>Salon:</strong> @Model.Salon?.Ad</p>
+                            <div class="mb-4">
+                                <h6 class="text-uppercase text-muted small fw-bold">Çalışma Bilgileri</h6>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-building fs-5 text-primary me-2"></i>
+                                    <div>
+                                        <div class="small text-muted">Salon</div>
+                                        <div class="fw-bold">@(Model.Salon?.Ad ?? "Atanmamış")</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-clock fs-5 text-primary me-2"></i>
+                                    <div>
+                                        <div class="small text-muted">Müsaitlik</div>
+                                        <div class="fw-bold">@Model.AvailableHours</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-geo-alt fs-5 text-primary me-2"></i>
+                                    <div>
+                                        <div class="small text-muted">Salon Adresi</div>
+                                        <div class="fw-bold">@(Model.Salon?.Adres ?? "-")</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex mt-4 pt-3 border-top">
+                                <a class="btn btn-secondary px-4" asp-action="Index">Listeye Dön</a>
+                                <a class="btn btn-danger px-4" asp-action="Delete" asp-route-id="@Model.Id">Sil</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-
-<a class="btn btn-secondary mt-3" asp-action="Index">Geri</a>

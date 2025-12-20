@@ -1,51 +1,337 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
-
-@model IEnumerable<FitnessCenterManagement.Models.Service>
+﻿@model IEnumerable<FitnessCenterManagement.Models.Service>
 
 @{
-    ViewData["Title"] = "Hizmetler";
+    ViewData["Title"] = "Hizmetlerimiz";
 }
 
-<h2>Hizmetler</h2>
+@functions {
+    // Hizmet adına göre otomatik görsel seçen Gelişmiş Fonksiyon
+    public string GetServiceImage(string serviceName)
+    {
+        if (string.IsNullOrEmpty(serviceName)) return "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80"; // Default
 
-@if (User.IsInRole("Admin"))
-{
-    <a class="btn btn-primary mb-3" asp-action="Create">Yeni Hizmet Ekle</a>
+        // Türkçe karakter sorunu olmaması için küçük harfe çevir
+        serviceName = serviceName.ToLower(new System.Globalization.CultureInfo("tr-TR"));
+
+        // 1. YOGA & MEDİTASYON
+        if (serviceName.Contains("yoga") || serviceName.Contains("meditasyon") || serviceName.Contains("esneme"))
+            return "https://images.unsplash.com/photo-1599447421405-0c325d36d754?w=800&q=80"; // Daha belirgin yoga görseli
+
+        // 2. PILATES
+        if (serviceName.Contains("pilates") || serviceName.Contains("reformer"))
+            return "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&q=80";
+
+        // 3. DANS & ZUMBA
+        if (serviceName.Contains("zumba") || serviceName.Contains("dans") || serviceName.Contains("dance"))
+            return "https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?w=800&q=80";
+
+        // 4. DÖVÜŞ SPORLARI (Boks, Kickboks)
+        if (serviceName.Contains("boks") || serviceName.Contains("kick") || serviceName.Contains("dövüş") || serviceName.Contains("boxing") || serviceName.Contains("muay"))
+            return "https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=800&q=80"; // Boks eldivenli görsel
+
+        // 5. SU SPORLARI (Yüzme, Havuz)
+        if (serviceName.Contains("yüzme") || serviceName.Contains("havuz") || serviceName.Contains("aqua") || serviceName.Contains("swim"))
+            return "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=800&q=80";
+
+        // 6. KARDİYO & BİSİKLET (Spinning, Koşu)
+        if (serviceName.Contains("spin") || serviceName.Contains("bisiklet") || serviceName.Contains("cycling"))
+            return "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80"; // Spinning görseli
+
+        if (serviceName.Contains("kardiyo") || serviceName.Contains("koşu") || serviceName.Contains("treadmill"))
+            return "https://images.unsplash.com/photo-1538805060512-e21960175d08?w=800&q=80";
+
+        // 7. KİŞİSEL ANTRENÖR (PT)
+        if (serviceName.Contains("kişisel") || serviceName.Contains("pt") || serviceName.Contains("özel") || serviceName.Contains("birebir") || serviceName.Contains("personal"))
+            return "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&q=80";
+
+        // 8. CROSSFIT & HIIT & FONKSİYONEL
+        if (serviceName.Contains("crossfit") || serviceName.Contains("hiit") || serviceName.Contains("fonksiyonel"))
+            return "https://images.unsplash.com/photo-1517963879466-e9b5d077d4c6?w=800&q=80";
+
+        // 9. AĞIRLIK & VÜCUT GELİŞTİRME
+        if (serviceName.Contains("ağırlık") || serviceName.Contains("body") || serviceName.Contains("kas") || serviceName.Contains("fitness"))
+            return "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800&q=80";
+
+        // 10. SPA & MASAJ & SAUNA
+        if (serviceName.Contains("spa") || serviceName.Contains("masaj") || serviceName.Contains("sauna") || serviceName.Contains("hamam"))
+            return "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&q=80";
+
+        // Varsayılan Fitness Görseli (Güvenli Fallback)
+        return "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80";
+    }
 }
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Ad</th>
-            <th>Açıklama</th>
-            <th>Süre (dk)</th>
-            <th>Ücret (TL)</th>
-            <th>Salon</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Name</td>
-                <td>@item.Description</td>
-                <td>@item.DurationMinutes</td>
-                <td>@item.Price.ToString("F2")</td>
-                <td>@item.Salon?.Ad</td>
-                <td>
-                    <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@item.Id">Detay</a>
-                    @if (User.IsInRole("Admin"))
-                    {
-                        <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@item.Id">Düzenle</a>
-                        <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.Id">Sil</a>
-                    }
-                </td>
-            </tr>
+@section Styles {
+    <style>
+        :root {
+            --macfit-yellow: #FFD200;
+            --macfit-dark: #121212;
+            --macfit-card-bg: #1e1e1e;
+            --macfit-text-gray: #b0b0b0;
         }
-    </tbody>
-</table>
+
+        /* SCROLL SORUNU ÇÖZÜMÜ: Overflow-y auto ve height ayarları */
+        html, body {
+            overflow-x: hidden; /* Yatay taşmayı engelle */
+            overflow-y: auto !important; /* Dikey scrollu zorla */
+            height: auto !important; /* Sabit yükseklik varsa iptal et */
+            min-height: 100vh;
+            background-color: var(--macfit-dark);
+            color: #fff;
+        }
+
+        .page-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 3rem;
+            color: #fff;
+        }
+
+        .section-subtitle {
+            color: var(--macfit-text-gray);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Hizmet Kartı Tasarımı */
+        .service-card {
+            background-color: var(--macfit-card-bg);
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+            .service-card:hover {
+                border-color: var(--macfit-yellow);
+                transform: translateY(-5px);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            }
+
+        /* Görsel Alanı */
+        .service-img-container {
+            height: 220px;
+            overflow: hidden;
+            position: relative;
+            background-color: #000; /* Resim yüklenmezse siyah fon */
+        }
+
+        .service-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+            filter: brightness(0.8); /* Metin okunurluğu için hafif karanlık */
+        }
+
+        .service-card:hover .service-img {
+            transform: scale(1.1); /* Hoverda zoom efekti */
+            filter: brightness(1);
+        }
+
+        /* Görselin üzerindeki ikon */
+        .icon-overlay {
+            position: absolute;
+            bottom: -25px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--macfit-yellow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid var(--macfit-card-bg); /* Kart rengiyle sınır */
+            z-index: 2;
+            transform: rotate(45deg); /* Baklava dilimi şekli */
+        }
+
+            .icon-overlay i {
+                transform: rotate(-45deg); /* İkonu düzelt */
+                color: #000;
+                font-size: 1.5rem;
+            }
+
+        .card-body {
+            padding: 2rem;
+            padding-top: 2.5rem; /* İkon taşması için pay */
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .service-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .service-desc {
+            color: var(--macfit-text-gray);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .service-meta {
+            background-color: #000;
+            padding: 15px;
+            border-left: 3px solid var(--macfit-yellow);
+            margin-bottom: 1.5rem;
+        }
+
+        .meta-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #ddd;
+        }
+
+            .meta-item:last-child {
+                margin-bottom: 0;
+            }
+
+        .price-tag {
+            color: var(--macfit-yellow);
+            font-weight: bold;
+            font-size: 1.2rem;
+            font-family: 'Oswald', sans-serif;
+        }
+
+        /* Butonlar */
+        .btn-macfit {
+            background-color: var(--macfit-yellow);
+            color: #000;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            border-radius: 0;
+        }
+
+            .btn-macfit:hover {
+                background-color: #fff;
+                color: #000;
+            }
+
+        .btn-macfit-outline {
+            background-color: transparent;
+            border: 1px solid #fff;
+            color: #fff;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 12px;
+            width: 100%;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            border-radius: 0;
+        }
+
+            .btn-macfit-outline:hover {
+                background-color: #fff;
+                color: #000;
+            }
+
+        /* Sarı çizgi */
+        .decor-line {
+            width: 60px;
+            height: 4px;
+            background-color: var(--macfit-yellow);
+            margin: 20px auto;
+        }
+    </style>
+}
+
+<div class="container py-5">
+
+    <!-- Başlık Alanı -->
+    <div class="text-center mb-5 animate__animated animate__fadeInDown">
+        <h1 class="page-title">HİZMETLERİMİZ</h1>
+        <div class="decor-line"></div>
+        <p class="section-subtitle">
+            Sınırlarını zorlaman için ihtiyacın olan her şey burada.
+            Hedefine uygun programı seç ve harekete geç.
+        </p>
+    </div>
+
+    <!-- Hizmetler Grid -->
+    <div class="row g-4">
+        @foreach (var service in Model)
+        {
+            <div class="col-lg-4 col-md-6 animate__animated animate__fadeInUp">
+                <div class="service-card">
+
+                    <!-- Dinamik Görsel Alanı -->
+                    <div class="service-img-container">
+                        <!-- onerror ekleyerek kırık link durumunda fallback sağlıyoruz -->
+                        <img src="@GetServiceImage(service.Name)"
+                             alt="@service.Name"
+                             class="service-img"
+                             onerror="this.src='https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80';" />
+
+                        <!-- Dekoratif İkon -->
+                        <div class="icon-overlay">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <h4 class="service-title">@service.Name</h4>
+
+                        <p class="service-desc">
+                            @service.Description
+                        </p>
+
+                        <!-- Süre ve Fiyat Bilgisi -->
+                        <div class="service-meta">
+                            <div class="meta-item">
+                                <span><i class="bi bi-clock me-2"></i>Süre</span>
+                                <span class="fw-bold">@service.DurationMinutes Dk</span>
+                            </div>
+                            <div class="meta-item mt-2 pt-2 border-top border-secondary">
+                                <span><i class="bi bi-tag me-2"></i>Ücret</span>
+                                <span class="price-tag">@service.Price.ToString("C2")</span>
+                            </div>
+                        </div>
+
+                        <!-- Aksiyon Butonu -->
+                        <div class="mt-auto">
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <a asp-controller="Appointment" asp-action="Create" asp-route-serviceId="@service.Id" class="btn btn-macfit">
+                                    RANDEVU AL <i class="bi bi-arrow-right ms-2"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-macfit-outline">
+                                    GİRİŞ YAP VE RANDEVU AL
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

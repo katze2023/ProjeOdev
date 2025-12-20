@@ -2,136 +2,289 @@
     ViewData["Title"] = "Ana Sayfa";
 }
 
-<div class="main-content">
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
+
+    :root {
+        --macfit-yellow: #FFD200; /* MacFit Sarısı */
+        --macfit-dark: #121212;
+        --macfit-gray: #1e1e1e;
+        --macfit-text: #ffffff;
+    }
+
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: var(--macfit-dark);
+        color: var(--macfit-text);
+    }
+
+    h1, h2, h3, h4, h5 {
+        font-family: 'Oswald', sans-serif;
+        text-transform: uppercase;
+    }
+
+    /* HERO BÖLÜMÜ */
+    .hero-wrapper {
+        position: relative;
+        height: 85vh;
+        /* Arka plan resmi - dilerseniz kendi resminizle değiştirin */
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop') center/cover no-repeat;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* Alt kısmı eğik kesim */
+        clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        margin-bottom: 2rem;
+    }
+
+    .hero-content h1 {
+        font-size: 4.5rem;
+        font-weight: 700;
+        line-height: 1.1;
+        letter-spacing: 2px;
+    }
+    
+    .text-yellow {
+        color: var(--macfit-yellow) !important;
+    }
+
+    /* BUTONLAR */
+    .btn-macfit {
+        background-color: var(--macfit-yellow);
+        color: #000;
+        font-weight: 700;
+        font-family: 'Oswald', sans-serif;
+        text-transform: uppercase;
+        border-radius: 0;
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        border: 2px solid var(--macfit-yellow);
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-macfit:hover {
+        background-color: transparent;
+        color: var(--macfit-yellow);
+    }
+
+    .btn-macfit-outline {
+        background-color: transparent;
+        color: #fff;
+        border: 2px solid #fff;
+        font-weight: 700;
+        font-family: 'Oswald', sans-serif;
+        text-transform: uppercase;
+        border-radius: 0;
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-macfit-outline:hover {
+        background-color: #fff;
+        color: #000;
+    }
+
+    /* KARTLAR */
+    .feature-card {
+        background-color: var(--macfit-gray);
+        border: 1px solid #333;
+        padding: 2rem;
+        height: 100%;
+        transition: transform 0.3s, border-color 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--macfit-yellow);
+    }
+
+    .feature-card i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: inline-block;
+        color: var(--macfit-yellow);
+    }
+
+    .feature-card h5 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .feature-card p {
+        color: #aaa;
+        margin-bottom: 1.5rem;
+    }
+
+    .card-link {
+        text-decoration: none;
+        color: #fff;
+        font-weight: bold;
+        text-transform: uppercase;
+        border-bottom: 2px solid var(--macfit-yellow);
+        padding-bottom: 2px;
+        transition: color 0.3s;
+    }
+    
+    .card-link:hover {
+        color: var(--macfit-yellow);
+    }
+
+    /* AI KARTI */
+    .ai-card {
+        background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+        border: 1px solid var(--macfit-yellow);
+    }
+    
+    .ai-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: var(--macfit-yellow);
+        color: #000;
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    /* RESPONSIVE */
+    @@media (max-width: 768px) {
+        .hero-content h1 {
+            font-size: 2.5rem;
+        }
+        .hero-wrapper {
+            height: 60vh;
+            clip-path: none;
+        }
+        .btn-macfit, .btn-macfit-outline {
+            padding: 10px 20px;
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<div class="main-content-wrapper">
 
     <!-- HERO SECTION -->
-    <header class="hero-section text-white text-center"
-            style="background: linear-gradient(rgba(30,41,59,0.85), rgba(30,41,59,0.85)),
-                   url('/images/hero-bg.jpg') center/cover;
-                   height: 50vh;">
-
-        <div class="container-xl">
-            <h1 class="display-4 fw-bold mb-3">
-                Sınırlarını Aş, Geleceğine Yatırım Yap
+    <div class="hero-wrapper">
+        <div class="container text-center hero-content">
+            <h1 class="mb-3">
+                SINIRLARINI <span class="text-yellow">AŞ</span>,<br>
+                GELECEĞİNE YATIRIM YAP
             </h1>
-
-            <p class="lead mb-4 text-light">
-                Doğru salonu seç, uzman antrenörlerle çalış, hedeflerine emin adımlarla ilerle.
+            
+            <p class="lead mb-5 text-white-50" style="max-width: 700px; margin: 0 auto; font-size: 1.2rem;">
+                En iyi ekipmanlar, profesyonel antrenörler ve yapay zeka destekli programlarla hedefine ulaşmak için bahanen yok.
             </p>
 
-            <a asp-controller="Appointment"
-               asp-action="Create"
-               class="btn btn-outline-light btn-lg me-3">
-                Randevu Al
-            </a>
-
-            <a asp-area="Identity"
-               asp-page="/Account/Login"
-               class="btn btn-light btn-lg text-dark">
-                Giriş / Kayıt
-            </a>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                @if (!User.Identity.IsAuthenticated)
+                {
+                    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-macfit">
+                        KULÜBE KATIL
+                    </a>
+                    <a asp-controller="Appointment" asp-action="Create" class="btn btn-macfit-outline">
+                        RANDEVU AL
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Appointment" asp-action="Create" class="btn btn-macfit">
+                        YENİ RANDEVU
+                    </a>
+                    <a asp-controller="Appointment" asp-action="MyAppointments" class="btn btn-macfit-outline">
+                        RANDEVULARIM
+                    </a>
+                }
+            </div>
         </div>
-    </header>
+    </div>
 
-    <!-- FEATURES -->
-    <section class="features-section py-5 bg-light">
-        <div class="container-xl">
-            <h2 class="text-center mb-5 fw-bold">
-                Size Özel Çözümler
-            </h2>
-
-            <div class="row g-4">
-
-                <!-- Antrenör -->
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm border-0 text-center p-4">
-                        <div class="card-body">
-                            <i class="bi bi-people fs-1 text-primary mb-3"></i>
-
-                            <h5 class="fw-semibold">
-                                Uzman Antrenörler
-                            </h5>
-
-                            <p class="text-muted small">
-                                Uzmanlık alanlarına göre antrenörleri inceleyin ve randevu alın.
-                            </p>
-
-                            <a asp-controller="Trainer"
-                               asp-action="Index"
-                               class="btn btn-sm btn-outline-primary mt-2">
-                                Antrenörleri Gör
-                            </a>
-                        </div>
-                    </div>
+    <!-- KARTLAR BÖLÜMÜ -->
+    <div class="container py-5">
+        <div class="row g-4">
+            <!-- Salonlar -->
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <h5>KULÜPLER & EĞİTMENLER</h5>
+                    <p>Size en yakın salonu bulun, uzman antrenör kadromuzu inceleyin ve çalışma ortamınızı seçin.</p>
+                    <a asp-controller="PublicSalon" asp-action="Index" class="card-link">
+                        KEŞFET <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
+            </div>
 
-                <!-- AI -->
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm border-0 text-center p-4">
-                        <div class="card-body">
-                            <i class="bi bi-robot fs-1 text-primary mb-3"></i>
-
-                            <h5 class="fw-semibold">
-                                Yapay Zeka Egzersiz Önerileri
-                            </h5>
-
-                            <p class="text-muted small">
-                                Vücut bilgilerinize göre size özel egzersiz planları oluşturulur.
-                            </p>
-
-                            <a asp-controller="AIExercise"
-                               asp-action="Index"
-                               class="btn btn-sm btn-outline-primary mt-2">
-                                Önerileri Gör
-                            </a>
-                        </div>
-                    </div>
+            <!-- AI (Yapay Zeka) -->
+            <div class="col-md-4">
+                <div class="feature-card ai-card">
+                    <div class="ai-badge">YENİ TEKNOLOJİ</div>
+                    <i class="bi bi-cpu-fill text-yellow"></i>
+                    <h5>AI KOÇUNUZ</h5>
+                    <p>Vücut analizinize göre yapay zeka tarafından hazırlanan kişisel egzersiz ve beslenme programı.</p>
+                    <a asp-controller="AIExercise" asp-action="Index" class="card-link">
+                        ANALİZİ BAŞLAT <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
+            </div>
 
-                <!-- Hizmetler -->
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm border-0 text-center p-4">
-                        <div class="card-body">
-                            <i class="bi bi-list-check fs-1 text-primary mb-3"></i>
-
-                            <h5 class="fw-semibold">
-                                Hizmetler
-                            </h5>
-
-                            <p class="text-muted small">
-                                Salonların sunduğu tüm hizmetleri, süre ve ücret bilgileriyle inceleyin.
-                            </p>
-
-                            <a asp-controller="Services"
-                               asp-action="Index"
-                               class="btn btn-sm btn-outline-primary mt-2">
-                                Hizmetleri Gör
-                            </a>
-                        </div>
-                    </div>
+            <!-- Hizmetler -->
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    <h5>HİZMETLER</h5>
+                    <p>Grup derslerinden bireysel koçluğa, SPA'dan havuza kadar sunduğumuz tüm ayrıcalıklar.</p>
+                    <a asp-controller="Services" asp-action="Index" class="card-link">
+                        DETAYLARI GÖR <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- ALT BANNER (Call to Action) -->
+    <section class="py-5 mt-5" style="background-color: var(--macfit-yellow); color: #000;">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-2" style="color: #000; font-weight: 800; font-size: 2.5rem;">HEDEFİNE GİDEN YOL BURADA BAŞLIYOR</h2>
+                    <p class="mb-0 fs-5" style="color: #333;">Erteleme, hemen şimdi harekete geç.</p>
+                </div>
+                <div class="col-md-4 text-md-end text-center mt-3 mt-md-0">
+                     @if (!User.Identity.IsAuthenticated)
+                     {
+                        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-dark btn-lg px-5 py-3 rounded-0 fw-bold">
+                            ÜYE OL
+                        </a>
+                     }
+                     else
+                     {
+                         <a asp-controller="Appointment" asp-action="Create" class="btn btn-dark btn-lg px-5 py-3 rounded-0 fw-bold">
+                            PLAN OLUŞTUR
+                        </a>
+                     }
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- TECH STACK -->
-    <section class="py-5" style="background-color:#1f2933;">
-        <div class="container-xl text-center text-white">
-            <h4 class="mb-3">
-                Kullanılan Teknolojiler
-            </h4>
-
-            <p class="text-muted mx-auto" style="max-width: 700px;">
-                Bu proje ASP.NET Core MVC mimarisi kullanılarak geliştirilmiş, Entity Framework Core
-                ile veri yönetimi sağlanmıştır.
-            </p>
-
-            <div class="d-flex justify-content-center gap-4 mt-4 fs-3">
-                <i class="bi bi-c-square-fill"></i>
-                <i class="bi bi-filetype-sql"></i>
-                <i class="bi bi-gear-fill"></i>
-                <i class="bi bi-bootstrap-fill"></i>
+    <!-- TEKNOLOJİ ALTYAPISI (Minimal Footer) -->
+    <section class="py-4 text-center" style="background-color: #000; border-top: 1px solid #333;">
+        <div class="container">
+            <p class="text-muted small mb-3 text-uppercase tracking-wider">Gelişmiş Altyapı</p>
+            <div class="d-flex justify-content-center gap-4 text-white-50 fs-4">
+                <i class="bi bi-c-square" title="C#"></i>
+                <i class="bi bi-database" title="SQL"></i>
+                <i class="bi bi-code-slash" title=".NET Core"></i>
+                <i class="bi bi-bootstrap" title="Bootstrap"></i>
+                <i class="bi bi-robot" title="AI Integration"></i>
             </div>
         </div>
     </section>

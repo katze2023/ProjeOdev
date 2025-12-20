@@ -1,40 +1,48 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@model IEnumerable<FitnessCenterManagement.Models.Service>
+﻿@model IEnumerable<FitnessCenterManagement.Models.Service>
 
 @{
     ViewData["Title"] = "Hizmet Yönetimi";
 }
 
-<h2>Hizmet Yönetimi</h2>
-
-<a class="btn btn-primary mb-3" asp-action="Create">Yeni Hizmet Ekle</a>
-
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Ad</th>
-            <th>Açıklama</th>
-            <th>Süre (dk)</th>
-            <th>Fiyat</th>
-            <th style="width:150px;">İşlemler</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        @foreach (var s in Model)
-        {
-            <tr>
-                <td>@s.Name</td>
-                <td>@s.Description</td>
-                <td>@s.DurationMinutes</td>
-                <td>@s.Price TL</td>
-                <td>
-                    <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@s.Id">Düzenle</a>
-                    <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@s.Id">Sil</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="container-fluid py-4">
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h2 class="h4 mb-0"><i class="bi bi-list-check me-2"></i>Hizmet Yönetimi</h2>
+            <a class="btn btn-primary btn-sm" asp-action="Create">
+                <i class="bi bi-plus-circle me-1"></i> Yeni Hizmet Ekle
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Hizmet Adı</th>
+                            <th>Açıklama</th>
+                            <th class="text-center">Süre (dk)</th>
+                            <th class="text-center">Fiyat</th>
+                            <th class="text-center" style="width:180px;">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">@s.Name</td>
+                                <td class="text-muted small">@s.Description</td>
+                                <td class="text-center">@s.DurationMinutes</td>
+                                <td class="text-center">@s.Price.ToString("C2")</td>
+                                <td class="text-center">
+                                    <div class="btn-group">
+                                        <a class="btn btn-sm btn-outline-warning" asp-action="Edit" asp-route-id="@s.Id">Düzenle</a>
+                                        <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@s.Id">Sil</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,28 +1,39 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@{
-}
-
 @model FitnessCenterManagement.Models.Salon
 
-<h2>Yeni Salon Ekle</h2>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger shadow-sm">
+                <div class="card-header bg-danger text-white p-3 text-center">
+                    <h2 class="h5 mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Salon Silmeyi Onayla</h2>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <div class="mb-4">
+                        <img src="@(string.IsNullOrEmpty(Model.ImagePath) ? "/images/salons/default-salon.jpg" : Model.ImagePath)"
+                             class="img-fluid rounded shadow-sm mb-3"
+                             style="max-height: 200px; width: 100%; object-fit: cover;" />
 
-<form method="post">
-    <div class="form-group">
-        <label>Salon Adı</label>
-        <input class="form-control" asp-for="Ad" />
+                        <h4 class="fw-bold">@Model.Ad</h4>
+                        <p class="text-muted">Bu salonu silmek istediğinize emin misiniz? Bu işlem geri alınamaz.</p>
+                    </div>
+
+                    <div class="alert alert-light border text-start small">
+                        <strong>Adres:</strong> @Model.Adres <br />
+                        <strong>Çalışma Saatleri:</strong> @Model.CalismaSaatleri
+                    </div>
+
+                    <form asp-action="DeleteConfirmed" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger py-2">Evet, Kalıcı Olarak Sil</button>
+                            <a class="btn btn-light border py-2" asp-action="Index">İptal</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label>Adres</label>
-        <input class="form-control" asp-for="Adres" />
-    </div>
-
-    <div class="form-group">
-        <label>Çalışma Saatleri</label>
-        <input class="form-control" asp-for="CalismaSaatleri" />
-    </div>
-
-    <button class="btn btn-success mt-3">Kaydet</button>
-</form>
+</div>

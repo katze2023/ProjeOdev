@@ -1,51 +1,72 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model FitnessCenterManagement.Models.Trainer
+
 @{
+    ViewData["Title"] = "Antrenör Düzenle";
 }
 
-@model FitnessCenterManagement.Models.Service
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-warning p-3 text-center">
+                    <h2 class="h5 mb-0 text-dark"><i class="bi bi-pencil-square me-2"></i>Antrenör Düzenle</h2>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="ImagePath" />
 
-<h2>Hizmeti Düzenle</h2>
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="Id" />
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="row mb-4 align-items-center">
+                            <div class="col-md-4 text-center">
+                                <label class="form-label fw-bold d-block">Mevcut Fotoğraf</label>
+                                <img src="@(string.IsNullOrEmpty(Model.ImagePath) ? "/images/trainers/default-trainer.jpg" : Model.ImagePath)"
+                                     class="img-thumbnail rounded-circle shadow-sm"
+                                     style="width: 150px; height: 150px; object-fit: cover;"
+                                     onerror="this.src='/images/trainers/default-trainer.jpg';" />
+                            </div>
+                            <div class="col-md-8">
+                                <label asp-for="ImageFile" class="form-label fw-bold">Fotoğrafı Güncelle</label>
+                                <input type="file" class="form-control" asp-for="ImageFile" accept="image/*" />
+                                <small class="text-muted">Fotoğrafı değiştirmek istemiyorsanız boş bırakın.</small>
+                            </div>
+                        </div>
 
-    <div class="form-group">
-        <label asp-for="Name"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label fw-bold">Ad Soyad</label>
+                            <input class="form-control" asp-for="FullName" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Expertise" class="form-label fw-bold">Uzmanlık Alanları</label>
+                            <input class="form-control" asp-for="Expertise" />
+                            <span asp-validation-for="Expertise" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AvailableHours" class="form-label fw-bold">Müsaitlik Saatleri</label>
+                            <input class="form-control" asp-for="AvailableHours" />
+                            <span asp-validation-for="AvailableHours" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="SalonId" class="form-label fw-bold">Bağlı Olduğu Salon</label>
+                            <select asp-for="SalonId" class="form-select" asp-items="ViewBag.SalonId"></select>
+                            <span asp-validation-for="SalonId" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end pt-3 border-top">
+                            <a class="btn btn-light border px-4" asp-action="Index">İptal</a>
+                            <button type="submit" class="btn btn-warning px-5 fw-bold text-dark">Değişiklikleri Kaydet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label asp-for="Description"></label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="DurationMinutes"></label>
-        <input asp-for="DurationMinutes" class="form-control" />
-        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Price"></label>
-        <input asp-for="Price" class="form-control" />
-        <span asp-validation-for="Price" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="SalonId">Salon (opsiyonel)</label>
-        <select asp-for="SalonId" class="form-control" asp-items="ViewBag.SalonId">
-            <option value="">-- Seçiniz --</option>
-        </select>
-    </div>
-
-    <button type="submit" class="btn btn-success mt-2">Kaydet</button>
-    <a asp-action="Index" class="btn btn-secondary mt-2">İptal</a>
-</form>
+</div>
 
 @section Scripts {
     @{

@@ -1,264 +1,316 @@
-﻿
-@model FitnessCenterManagement.Models.ViewModels.AIUserInputViewModel
+﻿@model FitnessCenterManagement.Models.ViewModels.AIUserInputViewModel
 
 @{
-    ViewData["Title"] = "Yapay Zeka Fitness Planlayıcısı";
+    ViewData["Title"] = "AI Fitness Koçu";
 }
 
 @section Styles {
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* MacFit Tarzı Özel Stiller */
+        :root {
+            --macfit-yellow: #FFD200;
+            --macfit-dark: #121212;
+            --macfit-card-bg: #1e1e1e;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
+            background-color: var(--macfit-dark);
+            color: #fff;
         }
 
-        .card-plan {
-            transition: all 0.3s ease;
-            border-left: 6px solid;
+        .ai-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-            .card-plan:nth-child(3n+1) {
-                border-left-color: #4f46e5;
-            }
-
-            .card-plan:nth-child(3n+2) {
-                border-left-color: #10b981;
-            }
-
-            .card-plan:nth-child(3n) {
-                border-left-color: #f59e0b;
-            }
-
-        .input-field {
-            border-color: #d1d5db;
-            transition: border-color 0.2s;
+        .form-card {
+            background-color: var(--macfit-card-bg);
+            border: 1px solid #333;
+            border-radius: 0; /* Keskin hatlar */
         }
 
-            .input-field:focus {
-                border-color: #4f46e5;
-                box-shadow: 0 0 0 2px #4f46e5;
-                outline: none;
+        .form-control, .form-select {
+            background-color: #2c2c2c;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 0;
+            padding: 12px;
+        }
+
+            .form-control:focus, .form-select:focus {
+                background-color: #333;
+                border-color: var(--macfit-yellow);
+                color: #fff;
+                box-shadow: none;
             }
+
+        .btn-macfit {
+            background-color: var(--macfit-yellow);
+            color: #000;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 0;
+            padding: 15px;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+            .btn-macfit:hover {
+                background-color: #e6bd00;
+                transform: translateY(-2px);
+            }
+
+            .btn-macfit:disabled {
+                background-color: #555;
+                cursor: not-allowed;
+            }
+
+        /* Yükleme Animasyonu */
+        .loading-spinner {
+            display: none;
+            width: 2rem;
+            height: 2rem;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--macfit-yellow);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Sonuç Kartları */
+        .result-card {
+            background-color: #222;
+            border-left: 5px solid var(--macfit-yellow);
+            margin-bottom: 20px;
+        }
+
+        .badge-macfit {
+            background-color: var(--macfit-yellow);
+            color: #000;
+            font-weight: bold;
+            border-radius: 0;
+        }
+
+        /* Görsel Önizleme */
+        #imagePreview {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border: 2px dashed #444;
+            background-color: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
     </style>
 }
 
-<div class="p-4 md:p-8 bg-gray-100 min-h-screen">
-    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl p-6 md:p-10">
-        <h1 class="text-3xl font-extrabold text-gray-800 mb-6 border-b-4 border-indigo-600 pb-3">
-            🤖 Yapay Zeka Kişisel Antrenörünüz
-        </h1>
-        <p class="text-gray-600 mb-8 leading-relaxed">
-            Boy, kilo ve vücut tipi verilerinizi girin. İsteğe bağlı olarak eklediğiniz vücut fotoğrafı, Gemini'ın analiziyle birleşerek size özel,
-            yapılandırılmış ve <strong>3 günlük</strong> kişiselleştirilmiş bir egzersiz planı oluşturur.
-        </p>
+<div class="container py-5">
 
-        <form id="aiForm" enctype="multipart/form-data">
-            <div id="input-section" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Giriş Alanı -->
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label for="HeightCm" class="block text-sm font-semibold text-gray-700 mb-1">Boy (cm)</label>
-                            <input id="HeightCm" name="HeightCm" type="number" value="180" min="100" max="250" required
-                                   class="input-field block w-full rounded-lg shadow-sm p-3 border" placeholder="Örn: 180">
-                            <span class="text-red-600 text-xs validation-error" data-for="HeightCm"></span>
-                        </div>
-                        <div>
-                            <label for="WeightKg" class="block text-sm font-semibold text-gray-700 mb-1">Kilo (kg)</label>
-                            <input id="WeightKg" name="WeightKg" type="number" value="75" min="30" max="300" required
-                                   class="input-field block w-full rounded-lg shadow-sm p-3 border" placeholder="Örn: 75">
-                            <span class="text-red-600 text-xs validation-error" data-for="WeightKg"></span>
-                        </div>
-                        <div>
-                            <label for="BodyType" class="block text-sm font-semibold text-gray-700 mb-1">Vücut Tipi</label>
-                            <select id="BodyType" name="BodyType" required class="input-field block w-full rounded-lg shadow-sm p-3 border appearance-none">
-                                <option value="Mesomorph">Mesomorph (Atletik)</option>
-                                <option value="Ectomorph">Ectomorph (Zayıf)</option>
-                                <option value="Endomorph">Endomorph (Kilo Almaya Yatkın)</option>
-                            </select>
-                            <span class="text-red-600 text-xs validation-error" data-for="BodyType"></span>
-                        </div>
-                    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
 
-                    <div class="pt-4 p-4 card-input bg-indigo-50/50 rounded-lg">
-                        <label for="ImageFile" class="block text-sm font-bold text-indigo-700 mb-2">📸 Vücut Fotoğrafı Yükle (İsteğe Bağlı)</label>
-                        <input id="ImageFile" name="ImageFile" type="file" accept="image/*"
-                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-200 file:text-indigo-800 hover:file:bg-indigo-300 transition">
-                        <p class="mt-2 text-xs text-indigo-700/80">Analiz kalitesini artırmak için ön/yan profil fotoğrafı önerilir.</p>
-                        <span class="text-red-600 text-xs validation-error" data-for="ImageFile"></span>
-                    </div>
-                </div>
+            <div class="text-center mb-5">
+                <h1 class="ai-title display-4 text-white">YAPAY ZEKA <span style="color: var(--macfit-yellow);">KOÇUN</span></h1>
+                <p class="text-secondary lead">Vücut analizinize göre kişiselleştirilmiş 3 günlük antrenman ve beslenme programı.</p>
+            </div>
 
-                <!-- Önizleme Alanı -->
-                <div class="lg:col-span-1 flex flex-col items-center justify-center border-2 border-dashed border-indigo-300 p-6 rounded-xl bg-white/70 shadow-inner">
-                    <img id="imagePreview" src="https://placehold.co/150x200/e0f2f7/06b6d4?text=Foto%C4%9Fraf"
-                         alt="Önizleme" class="max-h-52 w-auto object-contain rounded-lg shadow-xl border border-gray-200">
-                    <p id="imageStatus" class="mt-3 text-sm font-medium text-gray-600">Henüz fotoğraf yüklenmedi.</p>
+            <div class="card form-card p-4 mb-5 shadow-lg">
+                <div class="card-body">
+                    <form id="aiForm" enctype="multipart/form-data">
+                        <div class="row g-4">
+
+                            <!-- Sol Kolon: Bilgiler -->
+                            <div class="col-md-8">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label asp-for="HeightCm" class="form-label text-warning fw-bold">BOY (CM)</label>
+                                        <input asp-for="HeightCm" type="number" class="form-control" placeholder="180" min="100" max="250" required>
+                                        <span asp-validation-for="HeightCm" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label asp-for="WeightKg" class="form-label text-warning fw-bold">KİLO (KG)</label>
+                                        <input asp-for="WeightKg" type="number" class="form-control" placeholder="75" min="30" max="300" required>
+                                        <span asp-validation-for="WeightKg" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label asp-for="BodyType" class="form-label text-warning fw-bold">VÜCUT TİPİ</label>
+                                        <select asp-for="BodyType" class="form-select" required>
+                                            <option value="Mesomorph">Mesomorph (Atletik)</option>
+                                            <option value="Ectomorph">Ectomorph (Zayıf)</option>
+                                            <option value="Endomorph">Endomorph (Yapılı)</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12 mt-4">
+                                        <label class="form-label text-white fw-bold d-flex align-items-center gap-2">
+                                            <i class="bi bi-camera-fill text-warning"></i> FOTOĞRAF YÜKLE (Opsiyonel)
+                                        </label>
+                                        <input type="file" asp-for="ImageFile" class="form-control" accept="image/*">
+                                        <div class="form-text text-muted">Daha doğru analiz için boydan bir fotoğraf yükleyin.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sağ Kolon: Önizleme -->
+                            <div class="col-md-4">
+                                <div id="previewContainer">
+                                    <img id="imagePreview" src="#" alt="Görsel Önizleme" style="display:none;" />
+                                    <div id="placeholderPreview" class="d-flex align-items-center justify-content-center text-center p-4" style="height: 200px; border: 2px dashed #444; background: #222; color: #666;">
+                                        <span><i class="bi bi-image fs-1 d-block mb-2"></i>Görsel Seçilmedi</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Buton -->
+                            <div class="col-12 mt-4">
+                                <button type="submit" id="generateBtn" class="btn btn-macfit w-100 d-flex align-items-center justify-content-center gap-3">
+                                    <div class="loading-spinner" id="loadingSpinner"></div>
+                                    <span id="btnText">ANALİZİ BAŞLAT VE PROGRAMI OLUŞTUR</span>
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
                 </div>
             </div>
 
-            <button type="submit" id="generateBtn"
-                    class="mt-8 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold py-4 px-4 rounded-xl shadow-lg transition duration-150 ease-in-out disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center text-lg transform hover:scale-[1.01]">
-                <svg id="loading-indicator" class="animate-spin -ml-1 mr-3 h-6 w-6 text-white hidden" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span id="button-text">Yapay Zekâdan Kişiselleştirilmiş Plan Al</span>
-            </button>
-        </form>
+            <!-- SONUÇ ALANI -->
+            <div id="resultSection" class="d-none animate__animated animate__fadeIn">
+                <h3 class="ai-title mb-4 border-bottom border-secondary pb-2">SANA ÖZEL PROGRAM</h3>
 
-        <!-- Sonuç Bölümü -->
-        <div id="result-container" class="mt-12 pt-6 border-t-2 border-gray-200 hidden">
-            <h2 class="text-2xl font-bold text-indigo-700 mb-6 flex items-center">
-                <span class="mr-2">🏋️‍♂️</span> Kişisel Egzersiz Planınız
-            </h2>
-            <div id="recommendations-list" class="space-y-6"></div>
-            <div id="error-message" class="text-red-600 mt-6 hidden p-4 bg-red-100 border border-red-300 rounded-lg font-semibold"></div>
+                <div id="errorAlert" class="alert alert-danger d-none" role="alert"></div>
+
+                <div id="recommendationsList" class="row g-4">
+                    <!-- Javascript ile kartlar buraya eklenecek -->
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
     <script>
-        console.log('Script yüklendi');
+        $(document).ready(function() {
 
-        const form = document.getElementById('aiForm');
-        const generateBtn = document.getElementById('generateBtn');
-        const loadingIndicator = document.getElementById('loading-indicator');
-        const buttonText = document.getElementById('button-text');
-        const resultContainer = document.getElementById('result-container');
-        const recommendationsList = document.getElementById('recommendations-list');
-        const imageUpload = document.getElementById('ImageFile');
-        const imagePreview = document.getElementById('imagePreview');
-        const imageStatus = document.getElementById('imageStatus');
-        const errorMessage = document.getElementById('error-message');
-
-        // Görüntü önizleme
-        if (imageUpload) {
-            imageUpload.addEventListener('change', (event) => {
-                const file = event.target.files[0];
+            // Görsel Önizleme
+            $("#ImageFile").change(function() {
+                const file = this.files[0];
                 if (file) {
-                    imagePreview.src = URL.createObjectURL(file);
-                    imageStatus.textContent = 'Yüklendi: ' + file.name;
-                    console.log('Dosya yüklendi:', file.name);
+                    let reader = new FileReader();
+                    reader.onload = function(event) {
+                        $("#imagePreview").attr("src", event.target.result).show();
+                        $("#placeholderPreview").hide();
+                    }
+                    reader.readAsDataURL(file);
                 } else {
-                    imagePreview.src = 'https://placehold.co/150x200/e0f2f7/06b6d4?text=Foto%C4%9Fraf';
-                    imageStatus.textContent = 'Henüz fotoğraf yüklenmedi.';
+                    $("#imagePreview").hide();
+                    $("#placeholderPreview").show();
                 }
             });
-        }
 
-        // Form gönderimi
-        if (form) {
-            form.addEventListener('submit', async (e) => {
+            // Form Gönderimi (AJAX)
+            $("#aiForm").submit(function(e) {
                 e.preventDefault();
-                console.log('Form gönderiliyor...');
 
-                document.querySelectorAll('.validation-error').forEach(el => el.textContent = '');
+                // Validasyon
+                if (!$(this).valid()) return;
 
-                generateBtn.disabled = true;
-                loadingIndicator.classList.remove('hidden');
-                buttonText.textContent = 'Analiz Ediliyor... (30 saniyeye kadar sürebilir)';
-                resultContainer.classList.add('hidden');
-                errorMessage.classList.add('hidden');
+                // UI Güncelleme
+                const btn = $("#generateBtn");
+                const originalText = $("#btnText").text();
 
-                const formData = new FormData(form);
+                btn.prop("disabled", true);
+                $("#btnText").text("YAPAY ZEKA ANALİZ EDİYOR...");
+                $("#loadingSpinner").show();
+                $("#resultSection").addClass("d-none");
+                $("#recommendationsList").empty();
+                $("#errorAlert").addClass("d-none");
 
-                console.log('Form verileri:');
-                for (let [key, value] of formData.entries()) {
-                    console.log(key, value);
-                }
+                // FormData Oluşturma
+                var formData = new FormData(this);
 
-                try {
-                    console.log('API çağrısı başlatılıyor...');
-                    const response = await fetch('/AIExercise/GetRecommendations', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    console.log('Response alındı:', response.status);
-                    console.log('Content-Type:', response.headers.get('content-type'));
-
-                    const responseText = await response.text();
-                    console.log('Response text:', responseText);
-
-                    if (!responseText) {
-                        throw new Error('Sunucudan boş yanıt geldi');
+                $.ajax({
+                    url: '@Url.Action("GetRecommendations", "AIExercise")',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success && response.recommendations.length > 0) {
+                            renderResults(response.recommendations);
+                        } else {
+                            showError("Uygun bir program oluşturulamadı. Lütfen tekrar deneyin.");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        showError("Bir hata oluştu: " + error);
+                    },
+                    complete: function() {
+                        btn.prop("disabled", false);
+                        $("#btnText").text(originalText);
+                        $("#loadingSpinner").hide();
                     }
-
-                    let data;
-                    try {
-                        data = JSON.parse(responseText);
-                        console.log('Parsed data:', data);
-                    } catch (parseError) {
-                        console.error('JSON parse hatası:', parseError);
-                        throw new Error('Sunucu yanıtı geçersiz: ' + responseText.substring(0, 200));
-                    }
-
-                    if (!response.ok) {
-                        throw new Error(data.error || `HTTP Hatası: ${response.status}`);
-                    }
-
-                    if (!data.success) {
-                        throw new Error(data.error || 'İşlem başarısız');
-                    }
-
-                    renderRecommendations(data.recommendations);
-
-                } catch (error) {
-                    console.error('Hata:', error);
-                    errorMessage.textContent = 'Hata: ' + error.message;
-                    errorMessage.classList.remove('hidden');
-                    resultContainer.classList.remove('hidden');
-                } finally {
-                    generateBtn.disabled = false;
-                    loadingIndicator.classList.add('hidden');
-                    buttonText.textContent = 'Yapay Zekâdan Kişiselleştirilmiş Plan Al';
-                }
+                });
             });
-        } else {
-            console.error('Form bulunamadı!');
-        }
 
-        function renderRecommendations(recommendations) {
-            console.log('Rendering recommendations:', recommendations);
-            recommendationsList.innerHTML = '';
-            errorMessage.classList.add('hidden');
+            function renderResults(data) {
+                const container = $("#recommendationsList");
 
-            if (!recommendations || recommendations.length === 0) {
-                errorMessage.textContent = 'Yapay zeka plan oluşturamadı. Lütfen bilgileri kontrol edin.';
-                errorMessage.classList.remove('hidden');
-                resultContainer.classList.remove('hidden');
-                return;
+                data.forEach((item, index) => {
+                    // Bootstrap Grid: 3 kart varsa yan yana sığdır
+                    let html = `
+                        <div class="col-md-12">
+                            <div class="card result-card text-white h-100 shadow">
+                                <div class="card-header bg-black border-bottom border-dark py-3">
+                                    <h5 class="card-title mb-0 ai-title text-warning">
+                                        <i class="bi bi-calendar-check me-2"></i> ${item.title}
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <span class="badge badge-macfit me-2"><i class="bi bi-lightning-fill"></i> ${item.goal}</span>
+                                        <span class="badge bg-secondary me-2"><i class="bi bi-clock"></i> ${item.durationMinutes} DK</span>
+                                        <span class="badge bg-dark border border-secondary">${item.bodyType}</span>
+                                    </div>
+
+                                    <div class="card-text mt-3" style="white-space: pre-wrap; color: #ddd; line-height: 1.6;">
+                                        ${item.description}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.append(html);
+                });
+
+                $("#resultSection").removeClass("d-none");
+                // Sayfayı sonuca kaydır
+                $('html, body').animate({
+                    scrollTop: $("#resultSection").offset().top - 100
+                }, 500);
             }
 
-            recommendations.forEach((rec, index) => {
-                const day = index + 1;
-                const borderColor = day % 3 === 1 ? 'border-indigo-600' : day % 3 === 2 ? 'border-emerald-600' : 'border-amber-600';
-                const bgColor = day % 3 === 1 ? 'bg-indigo-50' : day % 3 === 2 ? 'bg-emerald-50' : 'bg-amber-50';
-
-                const card = document.createElement('div');
-                card.className = `card-plan p-6 rounded-xl shadow-lg ${bgColor} border-4 ${borderColor}`;
-                card.innerHTML = `
-                    <h3 class="text-xl font-bold text-gray-800 mb-2 border-b pb-2">Gün ${day}: ${rec.title}</h3>
-                    <div class="flex flex-wrap gap-3 mb-3 text-sm">
-                        <span class="px-3 py-1 bg-indigo-200 text-indigo-800 font-medium rounded-full">🏋️ ${rec.focusArea}</span>
-                        <span class="px-3 py-1 bg-green-200 text-green-800 font-medium rounded-full">⏱️ ${rec.durationMinutes} dk</span>
-                        <span class="px-3 py-1 bg-gray-600 text-white font-medium rounded-full">🧍 ${rec.bodyType}</span>
-                        <span class="px-3 py-1 bg-yellow-200 text-yellow-800 font-medium rounded-full">🏆 ${rec.goal}</span>
-                    </div>
-                    <p class="text-gray-700 whitespace-pre-wrap leading-relaxed">${rec.description}</p>
-                `;
-                recommendationsList.appendChild(card);
-            });
-
-            resultContainer.classList.remove('hidden');
-            console.log('Recommendations rendered');
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM yüklendi');
+            function showError(msg) {
+                $("#errorAlert").text(msg).removeClass("d-none");
+                $("#resultSection").removeClass("d-none");
+            }
         });
     </script>
 }

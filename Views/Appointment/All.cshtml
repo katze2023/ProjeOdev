@@ -1,53 +1,141 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<FitnessCenterManagement.Models.Appointment>
+
 @{
+    ViewData["Title"] = "Tüm Randevular";
 }
 
-@model IEnumerable<FitnessCenterManagement.Models.Appointment>
-
-<h2>Tüm Randevular</h2>
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Üye</th>
-            <th>Hizmet</th>
-            <th>Antrenör</th>
-            <th>Tarih</th>
-            <th>Saat</th>
-            <th>Onay</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var a in Model)
-        {
-            <tr>
-                <td>@a.User.Email</td>
-                <td>@a.Service.Name</td>
-                <td>@a.Trainer.FullName</td>
-                <td>@a.Date.ToShortDateString()</td>
-                <td>@a.Time</td>
-                <td>
-                    @if (a.IsApproved)
-                    {
-                        <span class="badge bg-success">Onaylandı</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-warning">Bekliyor</span>
-                    }
-                </td>
-                <td>
-                    @if (!a.IsApproved)
-                    {
-                        <a class="btn btn-success btn-sm" asp-action="Approve" asp-route-id="@a.Id">
-                            Onayla
-                        </a>
-                    }
-                </td>
-            </tr>
+@section Styles {
+    <style>
+        :root {
+            --macfit-yellow: #FFD200;
+            --macfit-dark: #121212;
+            --macfit-card-bg: #1e1e1e;
         }
-    </tbody>
-</table>
+
+        body {
+            background-color: var(--macfit-dark);
+            color: #fff;
+        }
+
+        .page-header {
+            border-bottom: 2px solid #333;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+        }
+
+        .page-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        /* Tablo */
+        .table-dark-custom {
+            --bs-table-bg: var(--macfit-card-bg);
+            --bs-table-color: #ddd;
+            border-color: #333;
+        }
+
+            .table-dark-custom thead th {
+                color: var(--macfit-yellow);
+                font-family: 'Oswald', sans-serif;
+                text-transform: uppercase;
+                border-bottom: 2px solid var(--macfit-yellow);
+                background-color: #000;
+            }
+
+        .btn-approve {
+            background-color: transparent;
+            border: 1px solid #198754;
+            color: #198754;
+            border-radius: 0;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+            .btn-approve:hover {
+                background-color: #198754;
+                color: #fff;
+            }
+    </style>
+}
+
+<div class="container py-5">
+
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h2 class="page-title mb-0">TÜM RANDEVU TALEPLERİ</h2>
+        <span class="badge bg-warning text-dark rounded-0 px-3 py-2">YÖNETİCİ PANELİ</span>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-dark text-center border-secondary py-5">
+            <i class="bi bi-inbox fs-1 text-muted mb-3 d-block"></i>
+            <p class="text-muted mb-0">Şu anda sistemde kayıtlı randevu bulunmuyor.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-hover table-dark-custom align-middle">
+                <thead>
+                    <tr>
+                        <th>ÜYE BİLGİSİ</th>
+                        <th>HİZMET</th>
+                        <th>ANTRENÖR</th>
+                        <th>TARİH / SAAT</th>
+                        <th class="text-center">DURUM</th>
+                        <th class="text-end">İŞLEM</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
+                                        <i class="bi bi-person-fill text-white"></i>
+                                    </div>
+                                    <span class="fw-bold">@a.User.Email</span>
+                                </div>
+                            </td>
+                            <td>@a.Service.Name</td>
+                            <td>@a.Trainer.FullName</td>
+                            <td>
+                                <div class="small text-white">@a.Date.ToShortDateString()</div>
+                                <div class="small text-muted font-monospace">@a.Time</div>
+                            </td>
+                            <td class="text-center">
+                                @if (a.IsApproved)
+                                {
+                                    <span class="badge bg-success rounded-0 px-3">ONAYLANDI</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark rounded-0 px-3">BEKLİYOR</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                @if (!a.IsApproved)
+                                {
+                                    <a class="btn btn-approve btn-sm px-3" asp-action="Approve" asp-route-id="@a.Id">
+                                        <i class="bi bi-check-lg me-1"></i> ONAYLA
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-success small"><i class="bi bi-check-all"></i> İşlem Tamam</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

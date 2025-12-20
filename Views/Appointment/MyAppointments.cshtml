@@ -1,42 +1,153 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<FitnessCenterManagement.Models.Appointment>
+
 @{
+    ViewData["Title"] = "Randevularım";
 }
 
-@model IEnumerable<FitnessCenterManagement.Models.Appointment>
-
-<h2>Randevularım</h2>
-
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Hizmet</th>
-            <th>Antrenör</th>
-            <th>Tarih</th>
-            <th>Saat</th>
-            <th>Onay</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Service.Name</td>
-                <td>@item.Trainer.FullName</td>
-                <td>@item.Date.ToShortDateString()</td>
-                <td>@item.Time</td>
-                <td>
-                    @if (item.IsApproved)
-                    {
-                        <span class="badge bg-success">Onaylandı</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-warning">Bekliyor</span>
-                    }
-                </td>
-            </tr>
+@section Styles {
+    <style>
+        :root {
+            --macfit-yellow: #FFD200;
+            --macfit-dark: #121212;
+            --macfit-card-bg: #1e1e1e;
         }
-    </tbody>
-</table>
+
+        body {
+            background-color: var(--macfit-dark);
+            color: #fff;
+        }
+
+        .page-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #fff;
+            letter-spacing: 1px;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+
+        /* Tablo Tasarımı */
+        .custom-table {
+            background-color: var(--macfit-card-bg);
+            border: 1px solid #333;
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+            .custom-table thead {
+                background-color: #000;
+                border-bottom: 2px solid var(--macfit-yellow);
+            }
+
+            .custom-table th {
+                color: var(--macfit-yellow);
+                font-family: 'Oswald', sans-serif;
+                text-transform: uppercase;
+                padding: 15px;
+                font-weight: 500;
+                border: none;
+            }
+
+            .custom-table td {
+                color: #ddd;
+                padding: 15px;
+                border-bottom: 1px solid #333;
+                vertical-align: middle;
+            }
+
+            .custom-table tr:hover td {
+                background-color: #2a2a2a;
+                color: #fff;
+            }
+
+        /* Durum Rozetleri */
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 0;
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-family: 'Oswald', sans-serif;
+        }
+
+        .status-approved {
+            background-color: rgba(25, 135, 84, 0.2);
+            color: #20c997;
+            border: 1px solid #198754;
+        }
+
+        .status-pending {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+
+        .empty-state {
+            background-color: var(--macfit-card-bg);
+            border: 1px dashed #444;
+            padding: 40px;
+            text-align: center;
+        }
+    </style>
+}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-title mb-0">RANDEVULARIM</h2>
+        <a asp-action="Create" class="btn btn-warning fw-bold rounded-0">
+            <i class="bi bi-plus-lg"></i> YENİ RANDEVU
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state rounded">
+            <i class="bi bi-calendar-x display-4 text-muted mb-3 d-block"></i>
+            <h4 class="text-white">Henüz bir randevunuz yok.</h4>
+            <p class="text-muted">Hedeflerinize ulaşmak için ilk adımı atın.</p>
+            <a asp-action="Create" class="btn btn-outline-light mt-3 rounded-0 px-4">RANDEVU OLUŞTUR</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive shadow-lg">
+            <table class="table custom-table mb-0">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-lightning-fill me-2"></i>HİZMET</th>
+                        <th><i class="bi bi-person-badge-fill me-2"></i>ANTRENÖR</th>
+                        <th><i class="bi bi-calendar-event me-2"></i>TARİH</th>
+                        <th><i class="bi bi-clock-fill me-2"></i>SAAT</th>
+                        <th class="text-center">DURUM</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold text-white">@item.Service.Name</td>
+                            <td>@item.Trainer.FullName</td>
+                            <td>@item.Date.ToShortDateString()</td>
+                            <td class="font-monospace">@item.Time</td>
+                            <td class="text-center">
+                                @if (item.IsApproved)
+                                {
+                                    <span class="status-badge status-approved">
+                                        <i class="bi bi-check-circle me-1"></i> ONAYLANDI
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-pending">
+                                        <i class="bi bi-hourglass-split me-1"></i> BEKLİYOR
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

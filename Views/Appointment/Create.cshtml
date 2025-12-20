@@ -1,39 +1,141 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model FitnessCenterManagement.Models.Appointment
+
 @{
+    ViewData["Title"] = "Randevu Oluştur";
 }
 
-@model FitnessCenterManagement.Models.Appointment
+@section Styles {
+    <style>
+        :root {
+            --macfit-yellow: #FFD200;
+            --macfit-dark: #121212;
+            --macfit-card-bg: #1e1e1e;
+        }
 
-<h2>Randevu Oluştur</h2>
+        body {
+            background-color: var(--macfit-dark);
+            color: #fff;
+        }
 
-<form method="post">
+        .page-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #fff;
+            letter-spacing: 1px;
+            border-left: 5px solid var(--macfit-yellow);
+            padding-left: 15px;
+        }
 
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        /* Form Kartı */
+        .form-card {
+            background-color: var(--macfit-card-bg);
+            border: 1px solid #333;
+            border-radius: 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
 
-    <div class="mb-3">
-        <label>Hizmet</label>
-        <select asp-for="ServiceId" class="form-control" asp-items="ViewBag.Services"></select>
+        .form-label {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.1rem;
+            color: var(--macfit-yellow);
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            background-color: #2c2c2c;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 12px;
+            border-radius: 0;
+            transition: all 0.3s;
+        }
+
+            .form-control:focus, .form-select:focus {
+                background-color: #333;
+                border-color: var(--macfit-yellow);
+                color: #fff;
+                box-shadow: 0 0 0 0.25rem rgba(255, 210, 0, 0.25);
+            }
+
+        /* Buton */
+        .btn-macfit {
+            background-color: var(--macfit-yellow);
+            color: #000;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 0;
+            transition: all 0.3s;
+            width: 100%;
+            font-size: 1.1rem;
+        }
+
+            .btn-macfit:hover {
+                background-color: #fff;
+                color: #000;
+                transform: translateY(-2px);
+            }
+
+        .text-muted-light {
+            color: #aaa !important;
+        }
+    </style>
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="mb-4">
+                <h2 class="page-title">YENİ RANDEVU OLUŞTUR</h2>
+                <p class="text-muted-light mt-2">Hedefine bir adım daha yaklaşmak için uygun saati seç.</p>
+            </div>
+
+            <div class="card form-card p-4">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger bg-dark border-danger text-danger"></div>
+
+                    <div class="mb-4">
+                        <label class="form-label"><i class="bi bi-lightning-charge-fill me-2"></i>HİZMET SEÇİN</label>
+                        <select asp-for="ServiceId" class="form-select" asp-items="ViewBag.Services">
+                            <option value="">-- Hizmet Seçiniz --</option>
+                        </select>
+                        <span asp-validation-for="ServiceId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label"><i class="bi bi-person-fill me-2"></i>ANTRENÖR SEÇİN</label>
+                        <select asp-for="TrainerId" class="form-select" asp-items="ViewBag.Trainers">
+                            <option value="">-- Müsait Antrenör Seçiniz --</option>
+                        </select>
+                        <span asp-validation-for="TrainerId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label"><i class="bi bi-calendar-event me-2"></i>TARİH</label>
+                            <input asp-for="Date" type="date" class="form-control" />
+                            <span asp-validation-for="Date" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label"><i class="bi bi-clock me-2"></i>SAAT</label>
+                            <input asp-for="Time" type="time" class="form-control" />
+                            <span asp-validation-for="Time" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-macfit mt-2">
+                        RANDEVUYU ONAYLA <i class="bi bi-check-lg ms-2"></i>
+                    </button>
+                </form>
+            </div>
+
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label>Antrenör</label>
-        <select asp-for="TrainerId" class="form-control" asp-items="ViewBag.Trainers"></select>
-    </div>
-
-    <div class="mb-3">
-        <label>Tarih</label>
-        <input asp-for="Date" type="date" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label>Saat</label>
-        <input asp-for="Time" type="time" class="form-control" />
-    </div>
-
-    <button class="btn btn-success">Randevu Oluştur</button>
-</form>
+</div>
 
 @section Scripts {
     @{

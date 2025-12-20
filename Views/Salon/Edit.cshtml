@@ -1,28 +1,76 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<FitnessCenterManagement.Models.Trainer>
+
 @{
+    ViewData["Title"] = "Antrenör Yönetimi";
 }
 
-@model FitnessCenterManagement.Models.Salon
-
-<h2>Yeni Salon Güncelleme</h2>
-
-<form method="post">
-    <div class="form-group">
-        <label>Salon Adı</label>
-        <input class="form-control" asp-for="Ad" />
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 mb-0 text-dark">
+            <i class="bi bi-person-badge me-2 text-primary"></i> Antrenör Yönetimi
+        </h2>
+        <a class="btn btn-primary shadow-sm" asp-action="Create">
+            <i class="bi bi-person-plus-fill me-1"></i> Yeni Antrenör Ekle
+        </a>
     </div>
 
-    <div class="form-group">
-        <label>Adres</label>
-        <input class="form-control" asp-for="Adres" />
-    </div>
+    <div class="row g-4">
+        @* Burada 'Model' büyük harfle başlamalıdır *@
+        @foreach (var trainer in Model)
+        {
+            <div class="col-md-6 col-lg-3">
+                <div class="card shadow-sm h-100 border-0 overflow-hidden transition-hover">
+                    <!-- Antrenör Fotoğrafı -->
+                    <div class="position-relative">
+                        @* trainer nesnesi içindeki ImagePath'e erişiyoruz *@
+                        <img src="@(string.IsNullOrEmpty(trainer.ImagePath) ? "/images/trainers/default-trainer.jpg" : trainer.ImagePath)"
+                             class="card-img-top"
+                             style="height:280px; object-fit:cover;"
+                             alt="@trainer.FullName"
+                             onerror="this.src='/images/trainers/default-trainer.jpg';" />
 
-    <div class="form-group">
-        <label>Çalışma Saatleri</label>
-        <input class="form-control" asp-for="CalismaSaatleri" />
-    </div>
+                        <div class="card-img-overlay d-flex align-items-end p-0">
+                            <div class="w-100 bg-dark bg-opacity-75 text-white p-2">
+                                <small class="fw-bold">@trainer.Expertise</small>
+                            </div>
+                        </div>
+                    </div>
 
-    <button class="btn btn-success mt-3">Kaydet</button>
-</form>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-bold mb-1">@trainer.FullName</h5>
+
+                        <div class="small text-muted mb-3">
+                            <i class="bi bi-building me-1"></i> @(trainer.Salon?.Ad ?? "Atanmamış") <br />
+                            <i class="bi bi-clock me-1"></i> @trainer.AvailableHours
+                        </div>
+
+                        <div class="mt-auto pt-3 border-top d-flex justify-content-between">
+                            <a class="btn btn-outline-info btn-sm" asp-action="Details" asp-route-id="@trainer.Id">
+                                <i class="bi bi-eye"></i> Detay
+                            </a>
+                            <div class="btn-group">
+                                <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@trainer.Id">
+                                    <i class="bi bi-pencil-square"></i> Düzenle
+                                </a>
+                                <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@trainer.Id">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .transition-hover {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+        .transition-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+</style>

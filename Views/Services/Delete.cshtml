@@ -1,30 +1,41 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model FitnessCenterManagement.Models.Trainer
+
 @{
+    ViewData["Title"] = "Antrenör Sil";
 }
 
-@model FitnessCenterManagement.Models.Service
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger shadow-sm">
+                <div class="card-header bg-danger text-white p-3 text-center">
+                    <h2 class="h5 mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Antrenör Silmeyi Onayla</h2>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <div class="mb-4">
+                        <img src="@(string.IsNullOrEmpty(Model.ImagePath) ? "/images/trainers/default-trainer.jpg" : Model.ImagePath)"
+                             class="rounded-circle shadow-sm mb-3 border border-3 border-danger"
+                             style="width: 150px; height: 150px; object-fit: cover;"
+                             onerror="this.src='/images/trainers/default-trainer.jpg';" />
 
-<h2>Hizmeti Sil</h2>
+                        <h4 class="fw-bold mb-1">@Model.FullName</h4>
+                        <p class="text-muted">Bu antrenörü silmek istediğinize emin misiniz? Bu işlem geri alınamaz.</p>
+                    </div>
 
-<div class="alert alert-danger">
-    <p>Bu hizmeti silmek istediğinize emin misiniz?</p>
-    <dl class="row">
-        <dt class="col-sm-2">Ad</dt>
-        <dd class="col-sm-10">@Model.Name</dd>
+                    <div class="alert alert-light border text-start small mb-4">
+                        <i class="bi bi-building me-1"></i> <strong>Salon:</strong> @(Model.Salon?.Ad ?? "Atanmamış") <br />
+                        <i class="bi bi-award me-1"></i> <strong>Uzmanlık:</strong> @Model.Expertise
+                    </div>
 
-        <dt class="col-sm-2">Süre</dt>
-        <dd class="col-sm-10">@Model.DurationMinutes dk</dd>
-
-        <dt class="col-sm-2">Ücret</dt>
-        <dd class="col-sm-10">@Model.Price.ToString("F2") TL</dd>
-    </dl>
-
-    <form asp-action="Delete" method="post">
-        <input type="hidden" asp-for="Id" />
-        <button type="submit" class="btn btn-danger">Evet, Sil</button>
-        <a asp-action="Index" class="btn btn-secondary">İptal</a>
-    </form>
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger py-2 fw-bold text-uppercase">Antrenörü Kalıcı Olarak Sil</button>
+                            <a class="btn btn-light border py-2" asp-action="Index">İptal / Vazgeç</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
